@@ -1,0 +1,2986 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>moodoro</title>
+<meta name="description" content="Um pomodoro no ritmo do pasto. Foco, pausa e uma vaca de companhia.">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#F0B5B0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Moodoro">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..900,0..100&display=swap" rel="stylesheet">
+<link rel="icon" id="favicon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='55' r='35' fill='%23FBF8F1' stroke='%231E1B18' stroke-width='4'/><ellipse cx='38' cy='50' rx='4' ry='6' fill='%231E1B18'/><ellipse cx='62' cy='50' rx='4' ry='6' fill='%231E1B18'/><ellipse cx='50' cy='72' rx='18' ry='12' fill='%23F0B5B0' stroke='%231E1B18' stroke-width='3'/></svg>">
+<style>
+  :root {
+    --milk:#FBF8F1; --milk-2:#F5EDD8; --milk-3:#EFE4C7; --milk-4:#E5D6B0;
+    --spot:#1E1B18; --spot-soft:#3A342E; --spot-softer:#5A5148;
+    --meadow:#6B8E4E; --meadow-deep:#4C6837; --meadow-tint:#D9E4C6; --meadow-glow:#EAF0D6;
+    --pink:#F0B5B0; --pink-deep:#C97A73; --pink-tint:#FBE3DF; --pink-glow:#FDF0EE;
+    --horn:#E0C88C; --ink:#2A2621; --ink-soft:#6A6156;
+    --wood:#8B6F4E; --wood-dark:#5C4732;
+    --sky-top:#B8D8E8; --sky-mid:#E8F0F2; --sky-bottom:#FBF8F1;
+    --sun-color:#F5D06A; --sun-glow:#F0B5B0;
+    --hill-far:#B5C99A; --hill-mid:#8FAD6B; --hill-near:#6B8E4E;
+    --grass:#7BA05B; --grass-dark:#4C6837;
+    --tree-canopy:#5F7955; --tree-canopy-light:#7BA05B; --tree-trunk:#6B4A2E;
+    --pond:#7EAFC7; --pond-highlight:#B5D6E5;
+    --windmill-body:#B8926A; --windmill-roof:#5C4732;
+    --distant-cow:#4C4038; --star:transparent; --firefly:transparent;
+    --shadow-1:0 1px 2px rgba(30,27,24,0.04),0 1px 1px rgba(30,27,24,0.06);
+    --shadow-2:0 4px 12px rgba(30,27,24,0.05),0 2px 4px rgba(30,27,24,0.06);
+    --shadow-3:0 12px 32px rgba(30,27,24,0.06),0 4px 8px rgba(30,27,24,0.05),0 1px 2px rgba(30,27,24,0.04);
+    --shadow-inset:inset 0 1px 0 rgba(255,255,255,0.5);
+    --radius-sm:10px; --radius:16px; --radius-lg:24px; --radius-xl:32px;
+    --grain-url:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.11 0 0 0 0 0.10 0 0 0 0 0.09 0 0 0 0.09 0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
+  }
+  body[data-time="morning"]{--sky-top:#F4C1A8;--sky-mid:#FBE3CE;--sky-bottom:#FBF8F1;--sun-color:#F5B04A;--sun-glow:#F5D6B0;--pond:#F0BFA5;--pond-highlight:#F5D6C0;}
+  body[data-time="day"]{--sky-top:#A7CBDC;--sky-mid:#DCEBF0;--sky-bottom:#F4F6EE;--sun-color:#F5D06A;--sun-glow:#FBEEC0;}
+  body[data-time="evening"]{--sky-top:#D8886A;--sky-mid:#F0B79A;--sky-bottom:#F5E4CE;--sun-color:#E85A3F;--sun-glow:#F5A88A;--hill-far:#7A8C6C;--hill-mid:#5F7955;--hill-near:#4C6340;--pond:#D89572;--tree-canopy:#4C6340;--tree-canopy-light:#5F7955;}
+  body[data-time="night"]{--sky-top:#1A2540;--sky-mid:#2F3D5C;--sky-bottom:#4A5670;--sun-color:#F0E9D6;--sun-glow:#DFD5B8;--hill-far:#3A4A38;--hill-mid:#2A3828;--hill-near:#1E2C1E;--grass:#34472B;--grass-dark:#22301C;--distant-cow:#0F0D0B;--star:#F5EDD8;--firefly:#F5D06A;--tree-canopy:#2A3828;--tree-canopy-light:#3A4A38;--pond:#3A4A5C;--pond-highlight:#5B6B7C;--windmill-body:#5C4732;}
+
+  * { box-sizing: border-box; }
+  html { min-height: 100%; }
+  body {
+    margin:0; padding:0; min-height:100vh;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% 5%, var(--pink-glow) 0%, transparent 55%),
+      radial-gradient(ellipse 700px 400px at 90% 15%, var(--meadow-glow) 0%, transparent 55%),
+      radial-gradient(ellipse 600px 400px at 50% 100%, var(--milk-2) 0%, transparent 60%),
+      var(--milk);
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: 'opsz' 14, 'wght' 420, 'SOFT' 60;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    position: relative;
+  }
+  body::before {
+    content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image: var(--grain-url);
+    opacity:0.35; mix-blend-mode: multiply;
+  }
+  body[data-time="night"] {
+    background:
+      radial-gradient(ellipse 900px 500px at 15% 5%, #3B475C 0%, transparent 55%),
+      radial-gradient(ellipse 700px 400px at 90% 15%, #2A3244 0%, transparent 55%),
+      #232B3A;
+    color: var(--milk);
+  }
+  body[data-time="night"]::before { opacity: 0.15; }
+
+  main {
+    position:relative; z-index:1;
+    max-width:920px; margin:0 auto;
+    padding:36px 24px 72px;
+    display:flex; flex-direction:column; gap:24px;
+  }
+
+  /* ── HEADER ─────────────────────────────────────────── */
+  header.brand {
+    display:flex; justify-content:space-between; align-items:center;
+    gap:12px; padding:4px 4px 20px;
+    flex-wrap:wrap;
+  }
+  .wordmark {
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 144,'wght' 700,'SOFT' 100;
+    font-size: 40px;
+    letter-spacing:-0.025em; line-height:1; color:var(--spot);
+    display:flex; align-items:baseline; gap:6px; flex-shrink:0;
+  }
+  .wordmark .dot {
+    display:inline-block; width:12px; height:12px; border-radius:50%;
+    background:var(--pink); border:2.5px solid var(--spot);
+    transform:translateY(1px);
+  }
+  .header-right {
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+  .lang-chip {
+    display:flex; gap:2px;
+    padding:3px; background:var(--milk-2); border-radius:999px;
+    border:1px solid var(--milk-3);
+  }
+  .lang-chip button {
+    all:unset; cursor:pointer;
+    padding:5px 12px; border-radius:999px;
+    font-size:11px; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--ink-soft); font-variation-settings:'wght' 600;
+    transition:background 0.15s, color 0.15s;
+  }
+  .lang-chip button:hover { color:var(--spot); }
+  .lang-chip button[aria-selected="true"] {
+    background:var(--milk); color:var(--spot);
+    box-shadow:var(--shadow-1);
+  }
+  .lang-chip button:focus-visible { outline:2px solid var(--spot); outline-offset:2px; }
+  body[data-time="night"] .lang-chip {
+    background:rgba(251,248,241,0.08); border-color:rgba(251,248,241,0.15);
+  }
+  body[data-time="night"] .lang-chip button { color:var(--milk-3); }
+  body[data-time="night"] .lang-chip button[aria-selected="true"] {
+    background:var(--milk); color:var(--spot);
+  }
+  .icon-btn {
+    all:unset; cursor:pointer;
+    width:40px; height:40px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink-soft); transition:background 0.2s, color 0.2s; flex-shrink:0;
+  }
+  .icon-btn:hover { background:var(--milk-2); color:var(--spot); }
+  .icon-btn:focus-visible { outline:2px solid var(--spot); outline-offset:2px; }
+  .icon-btn svg { width:20px; height:20px; }
+  body[data-time="night"] .icon-btn:hover { background:rgba(251,248,241,0.08); color:var(--milk); }
+
+  /* ── HERO CARD ──────────────────────────────────────── */
+  .hero-card {
+    background: var(--milk);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--milk-3);
+    box-shadow: var(--shadow-3);
+    padding: 12px 12px 28px;
+    display: flex; flex-direction: column; gap: 20px;
+    position: relative; overflow: hidden;
+  }
+  body[data-time="night"] .hero-card {
+    background: #3B475C; border-color: rgba(251,248,241,0.12);
+  }
+
+  .scene-wrap {
+    position:relative; border-radius: var(--radius-lg); overflow:hidden;
+    background:var(--sky-mid); aspect-ratio: 20/9;
+    box-shadow: 0 4px 16px rgba(30,27,24,0.08), inset 0 0 0 1px rgba(30,27,24,0.05);
+  }
+  .scene { display:block; width:100%; height:100%; }
+
+  @keyframes drift { from { transform: translateX(-120px); } to { transform: translateX(920px); } }
+  .scene .cloud-a { animation: drift 90s linear infinite; }
+  .scene .cloud-b { animation: drift 130s linear infinite; animation-delay: -50s; }
+  .scene .cloud-c { animation: drift 110s linear infinite; animation-delay: -80s; }
+  body[data-time="night"] .scene .cloud-a,
+  body[data-time="night"] .scene .cloud-b,
+  body[data-time="night"] .scene .cloud-c { opacity:0.35; }
+
+  .scene .stars { opacity:0; transition: opacity 1.2s; }
+  body[data-time="night"] .scene .stars { opacity:1; }
+  @keyframes twinkle { 0%,100% { opacity:0.9; } 50% { opacity:0.3; } }
+  .scene .stars circle { animation: twinkle 3s ease-in-out infinite; }
+  .scene .stars circle:nth-child(2n) { animation-delay: 1s; }
+  .scene .stars circle:nth-child(3n) { animation-delay: 2s; }
+
+  @keyframes sun-pulse {
+    0%,100% { transform: scale(1); opacity:0.6; }
+    50%     { transform: scale(1.05); opacity:0.75; }
+  }
+  .scene .sun-glow-halo {
+    transform-origin: 640px 90px; transform-box: view-box;
+    animation: sun-pulse 6s ease-in-out infinite;
+  }
+  body[data-time="night"] .scene .sun-glow-halo { animation: none; }
+
+  @keyframes sun-rays {
+    from { transform: rotate(0deg); } to { transform: rotate(360deg); }
+  }
+  .scene .sun-rays {
+    transform-origin: 640px 90px; transform-box: view-box;
+    animation: sun-rays 60s linear infinite; opacity: 0.35;
+  }
+  body[data-time="night"] .scene .sun-rays { opacity:0.15; animation-duration: 120s; }
+
+  @keyframes sway { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+  .scene .grass-tuft { transform-origin: bottom center; transform-box: fill-box; animation: sway 4s ease-in-out infinite; }
+  .scene .grass-tuft:nth-child(2n) { animation-duration: 5s; animation-delay: 0.8s; }
+  .scene .grass-tuft:nth-child(3n) { animation-duration: 3.5s; animation-delay: 1.4s; }
+  .scene .tree-canopy { transform-origin: bottom center; transform-box: fill-box; animation: sway 6s ease-in-out infinite; }
+
+  @keyframes pond-shimmer { 0%,100% { opacity:0.35; } 50% { opacity:0.7; } }
+  .scene .pond-highlight { animation: pond-shimmer 4s ease-in-out infinite; }
+
+  @keyframes fly {
+    0% { transform: translate(0,0); opacity:0; } 5% { opacity:1; }
+    25% { transform: translate(200px,-30px); } 50% { transform: translate(400px,10px); }
+    75% { transform: translate(600px,-20px); } 95% { opacity:1; }
+    100% { transform: translate(820px,0); opacity:0; }
+  }
+  @keyframes fly-2 {
+    0% { transform: translate(0,0); opacity:0; } 5% { opacity:1; }
+    30% { transform: translate(250px,20px); } 60% { transform: translate(500px,-15px); }
+    95% { opacity:1; } 100% { transform: translate(870px,-40px); opacity:0; }
+  }
+  @keyframes flap { 0%,100% { transform: scaleX(1); } 50% { transform: scaleX(0.4); } }
+  .scene .butterfly-group { animation: fly 22s ease-in-out infinite; animation-delay: 4s; }
+  .scene .butterfly-group-2 { animation: fly-2 28s ease-in-out infinite; animation-delay: 12s; }
+  .scene .butterfly-wing { transform-origin: center; transform-box: fill-box; animation: flap 0.15s ease-in-out infinite; }
+  body[data-time="night"] .scene .butterfly-group,
+  body[data-time="night"] .scene .butterfly-group-2 { display:none; }
+
+  @keyframes bird-fly {
+    0% { transform: translate(900px, 60px); opacity:0; } 5% { opacity:1; }
+    50% { transform: translate(400px, 40px); } 95% { opacity:1; }
+    100% { transform: translate(-100px, 90px); opacity:0; }
+  }
+  @keyframes wing-beat {
+    0%,100% { d: path('M -6 0 Q -3 -4 0 0 Q 3 -4 6 0'); }
+    50% { d: path('M -6 0 Q -3 2 0 0 Q 3 2 6 0'); }
+  }
+  .scene .bird-group { animation: bird-fly 35s linear infinite; animation-delay: 8s; }
+  .scene .bird-shape { animation: wing-beat 0.3s ease-in-out infinite; }
+  body[data-time="night"] .scene .bird-group { display:none; }
+
+  @keyframes firefly-pulse {
+    0%,100% { opacity:0; transform: translate(0,0); }
+    50% { opacity:1; transform: translate(3px,-4px); }
+  }
+  .scene .firefly {
+    fill: var(--firefly); filter: blur(0.5px); opacity: 0;
+    animation: firefly-pulse 3s ease-in-out infinite;
+  }
+  .scene .firefly:nth-child(2n) { animation-duration: 4s; animation-delay: 0.8s; }
+  .scene .firefly:nth-child(3n) { animation-duration: 5s; animation-delay: 1.5s; }
+  .scene .firefly:nth-child(4n) { animation-duration: 3.5s; animation-delay: 2.1s; }
+  body:not([data-time="night"]) .scene .firefly { animation: none; opacity:0; }
+
+  .cow-group { transform-origin:center; transform-box:fill-box; }
+  @keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.008); } }
+  .cow-body { transform-origin:center; transform-box:fill-box; animation: breathe 3.2s ease-in-out infinite; }
+  .cow-group .eye { transform-origin:center; transform-box:fill-box; }
+  @keyframes blink { 0%,92%,100% { transform: scaleY(1); } 94%,98% { transform: scaleY(0.05); } }
+  .cow-group .eye { animation: blink 5.5s infinite; }
+  .cow-group .eye.right { animation-delay: 0.04s; }
+  @keyframes tail-sway { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(12deg); } }
+  .cow-group .tail-group { transform-origin: center right; transform-box: fill-box; animation: tail-sway 3.4s ease-in-out infinite; }
+  @keyframes ear-twitch { 0%,82%,100% { transform: rotate(0deg); } 86%,92% { transform: rotate(-12deg); } }
+  .cow-group .ear-left { transform-origin: bottom right; transform-box: fill-box; animation: ear-twitch 8s ease-in-out infinite 1.5s; }
+  @keyframes chew { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(2px) rotate(-0.5deg); } }
+  body.mode-break .cow-group .muzzle-group,
+  body.mode-long  .cow-group .muzzle-group {
+    animation: chew 0.7s ease-in-out infinite;
+    transform-origin: center top; transform-box: fill-box;
+  }
+  body.mode-break.running .cow-group .head-group {
+    transform: translate(-8px,32px) rotate(-8deg);
+    transform-origin: bottom left; transform-box: fill-box;
+    transition: transform 1.2s ease;
+  }
+  body.mode-break.running .cow-group .grass-in-mouth { opacity:1; }
+  .cow-group .grass-in-mouth { opacity:0; transition: opacity 0.6s; }
+  body.mode-long .cow-group .eye { animation: none; transform: scaleY(0.08); }
+  body.mode-long .cow-group .eyelash { opacity:1; }
+  .cow-group .eyelash { opacity:0; transition: opacity 0.3s; }
+  .zzz { opacity:0; transition: opacity 0.4s; }
+  body.mode-long.running .zzz { opacity:1; }
+  @keyframes zzz-float {
+    0%   { transform: translate(0,0) scale(0.8); opacity:0; }
+    20%  { opacity:1; }
+    100% { transform: translate(15px,-30px) scale(1.2); opacity:0; }
+  }
+  body.mode-long.running .zzz text { animation: zzz-float 2.8s ease-out infinite; }
+  body.mode-long.running .zzz text:nth-child(2) { animation-delay: 0.9s; }
+  body.mode-long.running .zzz text:nth-child(3) { animation-delay: 1.8s; }
+
+  /* ── START REACTION ─────────────────────────────────────
+     When the user (or autostart) kicks off a timer, the cow
+     jumps a bit and perks its ears forward. Class lives ~1.5s. */
+  @keyframes cow-startle {
+    0%    { transform: translate(400px, 230px) scale(1); }
+    25%   { transform: translate(400px, 216px) scale(1.04); }
+    45%   { transform: translate(400px, 232px) scale(0.98); }
+    70%   { transform: translate(400px, 228px) scale(1.01); }
+    100%  { transform: translate(400px, 230px) scale(1); }
+  }
+  body.starting .cow-group { animation: cow-startle 0.7s cubic-bezier(0.34,1.56,0.64,1); }
+  body.starting .cow-group .ear-left  {
+    animation: ear-perk-left 1.1s cubic-bezier(0.34,1.56,0.64,1);
+    transform-origin: bottom right; transform-box: fill-box;
+  }
+  body.starting .cow-group .ear-right {
+    animation: ear-perk-right 1.1s cubic-bezier(0.34,1.56,0.64,1);
+    transform-origin: bottom left; transform-box: fill-box;
+  }
+  @keyframes ear-perk-left {
+    0%, 100% { transform: rotate(0deg); }
+    30%, 60% { transform: rotate(-18deg); }
+  }
+  @keyframes ear-perk-right {
+    0%, 100% { transform: rotate(0deg); }
+    30%, 60% { transform: rotate(18deg); }
+  }
+
+  /* ── BREAK: GRAZING WITH OCCASIONAL LOOK-UP ─────────────
+     While in break-running mode, the cow's head stays down
+     grazing but briefly lifts every ~10s to look around.
+     We keep transition + delayed animation so the initial
+     descent stays smooth. */
+  @keyframes grazing-lookup {
+    0%, 60%, 78%, 100% { transform: translate(-8px, 32px) rotate(-8deg); }
+    68%, 74%           { transform: translate(-4px, 12px) rotate(-2deg); }
+  }
+  body.mode-break.running .cow-group .head-group {
+    animation: grazing-lookup 11s ease-in-out 1.6s infinite;
+  }
+
+  /* Break also gets slightly faster tail wag, more "chill" */
+  body.mode-break.running .cow-group .tail-group {
+    animation: tail-sway 2.4s ease-in-out infinite;
+  }
+
+  /* ── LONG BREAK: RELAXED / DROOPY ───────────────────────
+     Ears droop down (relaxed), breathing slows and deepens. */
+  @keyframes ear-droop-left {
+    from { transform: rotate(0deg); } to { transform: rotate(22deg); }
+  }
+  @keyframes ear-droop-right {
+    from { transform: rotate(0deg); } to { transform: rotate(-22deg); }
+  }
+  body.mode-long .cow-group .ear-left {
+    animation: ear-droop-left 1.4s ease-out forwards;
+    transform-origin: bottom right; transform-box: fill-box;
+  }
+  body.mode-long .cow-group .ear-right {
+    animation: ear-droop-right 1.4s ease-out forwards;
+    transform-origin: bottom left; transform-box: fill-box;
+  }
+  @keyframes deep-breathe {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.014); }
+  }
+  body.mode-long .cow-body { animation: deep-breathe 5.5s ease-in-out infinite; }
+
+  /* ── CHEEK BLUSH (during celebration) ───────────────────
+     Pink cheeks fade in when the cow celebrates. */
+  .cow-group .cheek { transition: opacity 0.3s; }
+  body.celebrating .cow-group .cheek { opacity: 0.55; }
+
+  /* CELEBRATION */
+  @keyframes celebrate-hop {
+    0%, 100% { transform: translate(400px, 230px); }
+    20%      { transform: translate(400px, 200px) rotate(-3deg); }
+    35%      { transform: translate(400px, 220px) rotate(2deg); }
+    55%      { transform: translate(400px, 208px) rotate(-1deg); }
+    75%      { transform: translate(400px, 226px) rotate(1deg); }
+  }
+  body.celebrating .cow-group { animation: celebrate-hop 1.6s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes sparkle-pop {
+    0%   { opacity: 0; transform: scale(0.3); }
+    30%  { opacity: 1; transform: scale(1.4); }
+    60%  { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.5) translateY(-15px); }
+  }
+  .sparkles { opacity: 0; }
+  body.celebrating .sparkles { opacity: 1; }
+  body.celebrating .sparkle { transform-origin: center; transform-box: fill-box; animation: sparkle-pop 1.8s ease-out; }
+  body.celebrating .sparkle:nth-child(2) { animation-delay: 0.1s; }
+  body.celebrating .sparkle:nth-child(3) { animation-delay: 0.2s; }
+  body.celebrating .sparkle:nth-child(4) { animation-delay: 0.3s; }
+  body.celebrating .sparkle:nth-child(5) { animation-delay: 0.15s; }
+  body.celebrating .sparkle:nth-child(6) { animation-delay: 0.25s; }
+  body.celebrating .sparkle:nth-child(7) { animation-delay: 0.35s; }
+  body.celebrating .sparkle:nth-child(8) { animation-delay: 0.45s; }
+
+  .moo-bubble {
+    position:absolute; top:12%; left:46%;
+    background:var(--milk); border:2.5px solid var(--spot);
+    border-radius:20px; padding:8px 20px;
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 60,'wght' 700,'SOFT' 100;
+    font-size:20px; color:var(--spot);
+    opacity:0; transform:scale(0.6) translateY(10px);
+    transition:opacity 0.3s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events:none; white-space:nowrap; z-index:3;
+  }
+  .moo-bubble::after {
+    content:''; position:absolute; bottom:-13px; left:30px;
+    width:18px; height:18px; background:var(--milk);
+    border-right:2.5px solid var(--spot); border-bottom:2.5px solid var(--spot);
+    transform:rotate(45deg);
+  }
+  body.mooing .moo-bubble { opacity:1; transform:scale(1) translateY(0); }
+
+  /* ── TIMER SECTION (inside hero) ─────────────────────── */
+  .timer-section {
+    display:flex; flex-direction:column; align-items:center;
+    gap:16px; padding: 8px 16px 0;
+  }
+
+  .active-task-banner[hidden], .completion-prompt[hidden] { display: none !important; }
+  .active-task-banner {
+    display:inline-flex; align-items:center; gap:10px;
+    padding:8px 6px 8px 16px;
+    background:var(--pink-tint); border:1.5px solid var(--pink-deep);
+    border-radius:999px; max-width:100%;
+    font-size:13px; color:var(--spot);
+    font-variation-settings:'wght' 500;
+    animation: banner-in 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes banner-in {
+    from { transform: scale(0.9); opacity:0; }
+    to   { transform: scale(1); opacity:1; }
+  }
+  .active-task-banner .icon { flex-shrink:0; font-size: 14px; }
+  .active-task-banner .text {
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    max-width:280px;
+  }
+  .active-task-banner .pomodoros {
+    display:inline-flex; align-items:center; gap:3px;
+    padding:2px 8px; background:var(--milk); border-radius:999px;
+    font-size:11px; color:var(--pink-deep);
+    font-variation-settings:'wght' 600;
+  }
+  .active-task-banner .clear {
+    all:unset; cursor:pointer;
+    width:22px; height:22px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--pink-deep); font-size:16px; line-height:1;
+    transition:background 0.15s;
+  }
+  .active-task-banner .clear:hover { background:var(--milk); }
+  body[data-time="night"] .active-task-banner {
+    background:rgba(240,181,176,0.15); border-color:var(--pink);
+    color:var(--milk);
+  }
+  body[data-time="night"] .active-task-banner .pomodoros {
+    background:rgba(30,27,24,0.4); color:var(--pink);
+  }
+  body[data-time="night"] .active-task-banner .clear { color:var(--pink); }
+
+  .mode-caption {
+    font-size:15px; color:var(--ink-soft); font-style:italic;
+    letter-spacing:0.01em;
+    font-variation-settings:'opsz' 14,'wght' 500,'SOFT' 90;
+    margin-top: -4px;
+  }
+  .timer {
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 144,'wght' 600,'SOFT' 100;
+    font-size: 140px;
+    line-height:0.88; letter-spacing:-0.045em;
+    color:var(--spot); font-variant-numeric:tabular-nums;
+    display:flex; align-items:center; gap:2px;
+    transition:color 0.4s;
+    margin: -4px 0 0;
+  }
+  body.mode-break .timer, body.mode-long .timer { color:var(--meadow-deep); }
+  body[data-time="night"] .timer { color:var(--milk); }
+  body[data-time="night"] .wordmark,
+  body[data-time="night"] .task-item .task-text { color:var(--milk); }
+  body[data-time="night"] .mode-caption { color:var(--milk-3); }
+
+  .timer .colon {
+    display:inline-flex; flex-direction:column; justify-content:center;
+    gap:14px; padding:0 6px; height:0.55em;
+  }
+  .timer .colon span {
+    display:block; width:11px; height:11px; border-radius:50%;
+    background:currentColor;
+  }
+  body.running .timer .colon span { animation: colon-blink 1s steps(2) infinite; }
+  @keyframes colon-blink { 50% { opacity:0.25; } }
+
+  .completion-prompt {
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+    padding:18px 22px; margin: 4px auto 0;
+    background:var(--meadow-tint); border:1.5px solid var(--meadow-deep);
+    border-radius:var(--radius-lg); max-width:460px;
+    animation: banner-in 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .completion-prompt .question {
+    font-size:15px; color:var(--spot); text-align:center;
+    font-variation-settings:'wght' 500;
+  }
+  .completion-prompt .question strong {
+    font-variation-settings:'wght' 700; color:var(--meadow-deep);
+  }
+  .completion-prompt .prompt-actions { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .completion-prompt button {
+    all:unset; cursor:pointer;
+    padding:9px 18px; border-radius:999px;
+    font-family:'Fraunces',serif;
+    font-variation-settings:'wght' 500;
+    font-size:13px;
+    transition:background 0.15s, color 0.15s;
+  }
+  .completion-prompt .prompt-yes {
+    background:var(--meadow); color:var(--milk);
+    box-shadow:0 2px 0 var(--meadow-deep);
+  }
+  .completion-prompt .prompt-yes:hover { background:var(--meadow-deep); }
+  .completion-prompt .prompt-no {
+    background:transparent; color:var(--meadow-deep);
+    border:1.5px solid var(--meadow-deep);
+  }
+  .completion-prompt .prompt-no:hover { background:var(--milk); }
+  body[data-time="night"] .completion-prompt {
+    background:rgba(107,142,78,0.15); border-color:var(--meadow);
+  }
+  body[data-time="night"] .completion-prompt .question { color:var(--milk); }
+  body[data-time="night"] .completion-prompt .question strong { color:var(--meadow-tint); }
+  body[data-time="night"] .completion-prompt .prompt-no { color:var(--meadow-tint); border-color:var(--meadow-tint); }
+  body[data-time="night"] .completion-prompt .prompt-no:hover { background:rgba(251,248,241,0.08); }
+
+  .mode-tabs {
+    display:flex; justify-content:center; gap:6px;
+    flex-wrap:wrap; padding: 4px; background: var(--milk-2);
+    border-radius: 999px; border: 1px solid var(--milk-3);
+  }
+  .mode-tab {
+    all:unset; cursor:pointer;
+    padding:9px 18px;
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 24,'wght' 500,'SOFT' 90;
+    font-size:14px; color:var(--ink-soft);
+    border-radius:999px;
+    display:flex; align-items:baseline; gap:7px;
+    transition:background 0.2s, color 0.2s;
+  }
+  .mode-tab:hover { color:var(--spot); }
+  .mode-tab:focus-visible { outline:2px solid var(--spot); outline-offset:2px; }
+  body[data-time="night"] .mode-tabs { background: rgba(251,248,241,0.06); border-color: rgba(251,248,241,0.12); }
+  body[data-time="night"] .mode-tab { color:var(--milk-3); }
+  body[data-time="night"] .mode-tab:hover { color:var(--milk); }
+  .mode-tab .mins {
+    font-size:11px; opacity:0.55; letter-spacing:0.03em;
+    font-variation-settings:'wght' 500;
+    margin-left: 2px;
+  }
+  .mode-tab .mins::before { content: ""; display: inline-block; width: 1px; height: 10px; background: currentColor; opacity: 0.3; margin-right: 7px; vertical-align: middle; }
+  .mode-tab[aria-selected="true"] {
+    background:var(--milk); color:var(--spot); box-shadow: var(--shadow-1);
+    font-variation-settings:'opsz' 24,'wght' 600,'SOFT' 90;
+  }
+  body.mode-break .mode-tab[data-mode="break"][aria-selected="true"],
+  body.mode-long  .mode-tab[data-mode="long"][aria-selected="true"] {
+    background:var(--meadow-tint); color:var(--meadow-deep);
+  }
+  body.mode-focus .mode-tab[data-mode="focus"][aria-selected="true"] {
+    background:var(--pink-tint); color:var(--pink-deep);
+  }
+  .mode-tab[aria-selected="true"] .mins { opacity:0.75; }
+  body[data-time="night"] .mode-tab[aria-selected="true"] { background:var(--milk); color:var(--spot); }
+  body[data-time="night"] .mode-tab .mins { background: rgba(251,248,241,0.15); color: var(--milk-3); }
+
+  .controls {
+    display:flex; justify-content:center; gap:12px;
+    padding-top:2px; flex-wrap:wrap;
+  }
+  button.primary {
+    all:unset; cursor:pointer;
+    padding:14px 44px;
+    background:var(--pink); color:var(--spot);
+    border:2.5px solid var(--spot); border-radius:999px;
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 36,'wght' 600,'SOFT' 100;
+    font-style: italic;
+    font-size:22px; min-width:170px; text-align:center;
+    box-shadow:0 3px 0 var(--spot), 0 8px 20px rgba(201,122,115,0.25);
+    transition:transform 0.12s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.12s, background 0.2s;
+  }
+  button.primary:hover {
+    background:var(--pink-deep); color:var(--milk);
+    transform: translateY(-1px) rotate(-0.5deg);
+    box-shadow:0 4px 0 var(--spot), 0 10px 24px rgba(201,122,115,0.35);
+  }
+  button.primary:active {
+    transform:translateY(3px) rotate(0deg);
+    box-shadow:0 0 0 var(--spot), 0 2px 6px rgba(201,122,115,0.2);
+  }
+  button.primary:focus-visible { outline:2.5px solid var(--spot); outline-offset:4px; }
+  /* Mode-aware primary: meadow during breaks */
+  body.mode-break button.primary,
+  body.mode-long button.primary {
+    background: var(--meadow-tint);
+    box-shadow:0 3px 0 var(--spot), 0 8px 20px rgba(107,142,78,0.22);
+  }
+  body.mode-break button.primary:hover,
+  body.mode-long button.primary:hover {
+    background: var(--meadow); color:var(--milk);
+    box-shadow:0 4px 0 var(--spot), 0 10px 24px rgba(107,142,78,0.3);
+  }
+  body[data-time="night"] button.primary {
+    background:var(--pink); color:var(--spot);
+    border-color:var(--spot);
+    box-shadow:0 3px 0 var(--spot), 0 8px 20px rgba(0,0,0,0.4);
+  }
+  body[data-time="night"].mode-break button.primary,
+  body[data-time="night"].mode-long button.primary {
+    background: var(--meadow-tint);
+  }
+  button.ghost {
+    all:unset; cursor:pointer;
+    padding:11px 18px;
+    background:transparent; color:var(--ink-soft);
+    border:1.5px solid var(--milk-3); border-radius:999px;
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 14,'wght' 500,'SOFT' 60;
+    font-size:14px;
+    transition:background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  button.ghost:hover { border-color:var(--spot-softer); color:var(--spot); background:var(--milk-2); }
+  button.ghost:focus-visible { outline:2px solid var(--spot); outline-offset:2px; }
+  body[data-time="night"] button.ghost { color:var(--milk-3); border-color:rgba(251,248,241,0.2); }
+  body[data-time="night"] button.ghost:hover { color:var(--milk); border-color:var(--milk); background:rgba(251,248,241,0.08); }
+
+  /* ── STATS STRIP ─────────────────────────────────────── */
+  .stats-strip {
+    background: var(--milk);
+    border: 1px solid var(--milk-3);
+    border-radius: var(--radius-lg);
+    padding: 16px 24px;
+    box-shadow: var(--shadow-2);
+    display: flex; align-items: center;
+    flex-wrap: wrap;
+  }
+  body[data-time="night"] .stats-strip { background: #3B475C; border-color: rgba(251,248,241,0.12); }
+  .stat-chip {
+    display: inline-flex; flex-direction: column;
+    flex-shrink: 0;
+    margin-right: 24px;
+  }
+  .stat-chip:last-child { margin-right: 0; }
+  .stat-chip .chip-value {
+    font-family: 'Fraunces', serif;
+    font-variation-settings:'opsz' 36,'wght' 600,'SOFT' 100;
+    font-size: 24px; color: var(--spot); line-height: 1.1;
+    letter-spacing: -0.02em; white-space: nowrap;
+    display: block;
+  }
+  body[data-time="night"] .stat-chip .chip-value { color: var(--milk); }
+  .stat-chip .chip-label {
+    font-size:11px; color:var(--ink-soft); font-style:italic;
+    font-variation-settings:'opsz' 9,'wght' 400,'SOFT' 100;
+    text-transform:lowercase; letter-spacing: 0.02em;
+    margin-top: 3px; display: block;
+  }
+  body[data-time="night"] .stat-chip .chip-label { color:var(--milk-3); }
+  .stat-divider {
+    display: inline-block; width: 1px; height: 36px;
+    background: var(--milk-4); flex-shrink: 0;
+    opacity: 0.7;
+    margin-right: 24px;
+    vertical-align: middle;
+  }
+  body[data-time="night"] .stat-divider { background: rgba(251,248,241,0.2); }
+  .stat-chip.wide {
+    flex: 1; flex-direction: column;
+    min-width: 180px; margin-right: 0;
+  }
+  .stat-chip.wide .bottles-inline {
+    display: block; margin-bottom: 4px;
+  }
+  .stat-chip.wide .bottles-inline .bottle {
+    display: inline-block; margin-right: 5px; margin-bottom: 2px;
+  }
+  .stat-chip.wide .bottles-text .label {
+    font-size: 11px; color: var(--ink-soft); font-style: italic;
+    font-variation-settings:'opsz' 9,'wght' 400,'SOFT' 100;
+    letter-spacing: 0.02em; display: block;
+  }
+  body[data-time="night"] .stat-chip.wide .bottles-text .label { color: var(--milk-3); }
+
+  /* ── SUPPORT GRID ────────────────────────────────────── */
+  .support-grid {
+    display:flex; gap: 20px;
+    flex-wrap: wrap;
+  }
+  .support-grid > .panel-card {
+    flex: 1 1 320px;
+    min-width: 0;
+  }
+  .panel-card {
+    background: var(--milk);
+    border: 1px solid var(--milk-3);
+    border-radius: var(--radius-lg);
+    padding: 22px 22px 20px;
+    box-shadow: var(--shadow-2);
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  body[data-time="night"] .panel-card { background: #3B475C; border-color: rgba(251,248,241,0.12); }
+  .panel-card h2 {
+    all:unset;
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 60,'wght' 600,'SOFT' 90;
+    font-style: italic;
+    font-size:19px; color:var(--spot);
+    display:flex; justify-content:space-between; align-items:baseline; gap:12px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--milk-3);
+  }
+  body[data-time="night"] .panel-card h2 { color:var(--milk); border-color: rgba(251,248,241,0.12); }
+  .panel-card h2 .icon {
+    display:inline-flex; align-items:center; justify-content:center;
+    margin-right: 8px; font-style: normal;
+    width: 22px; height: 22px; transform: translateY(2px);
+  }
+  .panel-card h2 .icon svg { width: 100%; height: 100%; display: block; }
+  body[data-time="night"] .panel-card h2 .icon svg { color: var(--milk); }
+  .panel-card h2 .meta {
+    font-size:11px; color:var(--ink-soft); font-style:italic; font-variation-settings:'wght' 400;
+    text-transform: lowercase; letter-spacing: 0.02em;
+  }
+  body[data-time="night"] .panel-card h2 .meta { color:var(--milk-3); }
+
+  /* Tasks */
+  .task-list { all:unset; display:flex; flex-direction:column; gap:2px; margin: -4px -6px 0; }
+  .task-item {
+    all:unset; display:flex; align-items:center; gap:10px;
+    padding:9px 12px; border-radius: var(--radius-sm);
+    transition:background 0.15s;
+  }
+  .task-item:hover { background:var(--milk-2); }
+  body[data-time="night"] .task-item:hover { background:rgba(251,248,241,0.06); }
+  .task-item.active {
+    background: linear-gradient(90deg, var(--pink-tint) 0%, rgba(251,227,223,0) 100%);
+    box-shadow: inset 3px 0 0 var(--pink-deep);
+  }
+  body[data-time="night"] .task-item.active {
+    background: linear-gradient(90deg, rgba(240,181,176,0.18) 0%, rgba(240,181,176,0) 100%);
+    box-shadow: inset 3px 0 0 var(--pink);
+  }
+  .task-check {
+    appearance:none; -webkit-appearance:none;
+    width:19px; height:19px;
+    border:2px solid var(--spot-softer); border-radius:50%;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; background:transparent;
+    transition:background 0.15s, border-color 0.15s; position:relative;
+  }
+  .task-check:hover { border-color:var(--meadow-deep); }
+  .task-check:checked { background:var(--meadow); border-color:var(--meadow-deep); }
+  .task-check:checked::after {
+    content:''; width:8px; height:5px;
+    border-left:2px solid var(--milk); border-bottom:2px solid var(--milk);
+    transform:rotate(-45deg) translate(1px,-1px);
+  }
+  body[data-time="night"] .task-check { border-color:var(--milk-3); }
+  .task-item .task-text {
+    font-size:15px; color:var(--ink); flex:1;
+    font-variation-settings:'wght' 420;
+    transition:color 0.2s, text-decoration-color 0.2s;
+    text-decoration:none;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .task-item.done .task-text {
+    color:var(--ink-soft);
+    text-decoration:line-through; text-decoration-color:var(--ink-soft);
+  }
+  body[data-time="night"] .task-item.done .task-text { color:var(--milk-3); }
+  .task-pomodoros {
+    display:inline-flex; align-items:center; gap:3px;
+    padding:2px 7px; border-radius:999px;
+    background:var(--milk-3); color:var(--spot-soft);
+    font-size:10px; font-variation-settings:'wght' 600;
+    flex-shrink:0;
+  }
+  .task-pomodoros[data-count="0"] { display:none; }
+  body[data-time="night"] .task-pomodoros { background:rgba(251,248,241,0.12); color:var(--milk); }
+  .task-focus, .task-delete {
+    all:unset; cursor:pointer;
+    width:24px; height:24px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink-soft);
+    transition:opacity 0.15s, background 0.15s, color 0.15s;
+    flex-shrink:0;
+  }
+  .task-focus { opacity:0.5; font-size:13px; }
+  .task-delete { opacity:0; font-size:17px; line-height:1; }
+  .task-item:hover .task-focus { opacity:1; }
+  .task-item:hover .task-delete { opacity:1; }
+  .task-focus:hover { background:var(--pink-tint); color:var(--pink-deep); }
+  .task-item.active .task-focus { opacity:1; color:var(--pink-deep); background:var(--milk); }
+  .task-delete:hover { background:var(--pink-tint); color:var(--pink-deep); }
+  .task-focus:focus-visible, .task-delete:focus-visible { opacity:1; outline:2px solid var(--spot); outline-offset:1px; }
+
+  .task-add { display:flex; gap:8px; align-items:center; margin-top: 4px; }
+  .task-add input {
+    flex:1; padding:11px 14px;
+    border:1.5px solid var(--milk-3); border-radius:var(--radius-sm);
+    background:var(--milk-2);
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 14,'wght' 420,'SOFT' 60;
+    font-size:14px; color:var(--ink);
+    transition:border-color 0.2s, background 0.2s;
+  }
+  .task-add input:focus { outline:none; border-color:var(--spot); background: var(--milk); }
+  .task-add input::placeholder { color:var(--ink-soft); font-style:italic; }
+  body[data-time="night"] .task-add input {
+    color:var(--milk); border-color:rgba(251,248,241,0.2);
+    background: rgba(251,248,241,0.04);
+  }
+  body[data-time="night"] .task-add input::placeholder { color:var(--milk-3); }
+  body[data-time="night"] .task-add input:focus { border-color:var(--milk); background: rgba(251,248,241,0.08); }
+  .task-add button {
+    all:unset; cursor:pointer;
+    width:40px; height:40px; border-radius:50%;
+    background:var(--pink); color:var(--spot); border:2px solid var(--spot);
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; font-variation-settings:'wght' 600;
+    transition:background 0.2s, transform 0.1s;
+    box-shadow: var(--shadow-1);
+  }
+  .task-add button:hover { background:var(--pink-deep); color:var(--milk); }
+  .task-add button:active { transform: scale(0.95); }
+  .task-add button:focus-visible { outline:2px solid var(--spot); outline-offset:2px; }
+
+  .task-empty {
+    padding:18px 12px; text-align:center;
+    color:var(--ink-soft); font-style:italic; font-size:14px;
+    background:var(--milk-2); border-radius:var(--radius-sm);
+    border:1.5px dashed var(--milk-3);
+    margin: 4px 0;
+  }
+  body[data-time="night"] .task-empty {
+    background:rgba(251,248,241,0.04); border-color:rgba(251,248,241,0.15); color:var(--milk-3);
+  }
+
+  /* Weekly bars */
+  .weekly {
+    display:flex; gap:6px; justify-content:space-between; align-items:flex-end;
+    padding:12px 0 4px; width:100%; height: 110px;
+  }
+  .week-col {
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    flex:1; min-width:0; height: 100%;
+    justify-content: flex-end;
+  }
+  .week-bar {
+    width:100%; max-width:34px;
+    background: linear-gradient(180deg, var(--meadow-tint) 0%, var(--meadow) 100%);
+    border-radius:6px;
+    min-height:4px;
+    transition:height 0.6s cubic-bezier(0.34,1.56,0.64,1), transform 0.2s;
+    position:relative;
+  }
+  .week-bar:hover { transform: translateY(-2px); }
+  .week-col.today .week-bar {
+    background: linear-gradient(180deg, var(--meadow) 0%, var(--meadow-deep) 100%);
+    box-shadow:0 0 0 3px var(--meadow-tint);
+  }
+  .week-col.empty .week-bar {
+    background: var(--milk-3);
+    opacity: 0.6;
+  }
+  body[data-time="night"] .week-bar { background: linear-gradient(180deg, rgba(107,142,78,0.4) 0%, var(--meadow) 100%); }
+  body[data-time="night"] .week-col.today .week-bar {
+    background: linear-gradient(180deg, var(--meadow) 0%, var(--meadow-deep) 100%);
+    box-shadow:0 0 0 3px rgba(107,142,78,0.35);
+  }
+  body[data-time="night"] .week-col.empty .week-bar { background: rgba(251,248,241,0.1); }
+  .week-label {
+    font-size:10px; color:var(--ink-soft); text-transform:lowercase;
+    font-variation-settings:'wght' 500; letter-spacing: 0.02em;
+  }
+  .week-col.today .week-label { color:var(--spot); font-variation-settings:'wght' 700; }
+  body[data-time="night"] .week-label { color:var(--milk-3); }
+  body[data-time="night"] .week-col.today .week-label { color:var(--milk); }
+  .week-value {
+    font-size:10px; color:var(--meadow-deep);
+    font-variation-settings:'wght' 600;
+    min-height:12px;
+  }
+  body[data-time="night"] .week-value { color:var(--meadow-tint); }
+
+  /* Bottles inline (inside stats strip) */
+  .bottles-inline .bottle {
+    width:20px; height:32px; display:block;
+    transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .bottles-inline .bottle.just-filled { animation: bottle-pop 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes bottle-pop {
+    0% { transform: scale(0.5) translateY(20px); opacity:0; }
+    60% { transform: scale(1.2) translateY(-5px); opacity:1; }
+    100% { transform: scale(1) translateY(0); opacity:1; }
+  }
+  .bottles-text .value {
+    font-family: 'Fraunces', serif;
+    font-variation-settings:'opsz' 24,'wght' 600,'SOFT' 100;
+    font-size: 15px; color: var(--spot);
+  }
+  body[data-time="night"] .bottles-text .value { color: var(--milk); }
+  .bottles-text .label {
+    font-size:11px; color:var(--ink-soft); font-style:italic;
+  }
+  body[data-time="night"] .bottles-text .label { color:var(--milk-3); }
+
+  /* ── FOOTER ──────────────────────────────────────────── */
+  footer.foot {
+    display:flex; justify-content:space-between; align-items:center; gap:16px;
+    padding: 12px 8px 0;
+    flex-wrap:wrap;
+  }
+  .toggle {
+    all:unset; cursor:pointer;
+    display:inline-flex; align-items:center; gap:10px;
+    padding:6px 4px;
+    font-size:12px; color:var(--ink-soft);
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 14,'wght' 500,'SOFT' 60;
+    font-style: italic;
+    transition:color 0.2s;
+  }
+  .toggle:hover { color:var(--spot); }
+  .toggle:focus-visible { outline:2px solid var(--spot); outline-offset:4px; border-radius:999px; }
+  body[data-time="night"] .toggle:hover { color:var(--milk); }
+  .toggle .sound-icon {
+    width: 16px; height: 16px; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .toggle .sound-icon svg { width: 100%; height: 100%; display:block; }
+  .toggle .sound-icon .wave { transition: opacity 0.2s; }
+  .toggle .sound-icon .mute-slash { opacity: 0; transition: opacity 0.2s; }
+  .toggle[aria-pressed="false"] .sound-icon .wave { opacity: 0; }
+  .toggle[aria-pressed="false"] .sound-icon .mute-slash { opacity: 1; }
+  .toggle .track {
+    position: relative; width: 28px; height: 16px;
+    background: var(--milk-3); border-radius: 999px;
+    border: 1.5px solid var(--spot-softer);
+    transition: background 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle .track::after {
+    content:''; position: absolute; top: 0; left: 0;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--milk); border: 1.5px solid var(--spot);
+    transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), background 0.2s;
+  }
+  .toggle[aria-pressed="true"] .track {
+    background: var(--pink); border-color: var(--spot);
+  }
+  .toggle[aria-pressed="true"] .track::after {
+    transform: translateX(12px);
+  }
+  body[data-time="night"] .toggle .track {
+    background: rgba(251,248,241,0.1); border-color: rgba(251,248,241,0.3);
+  }
+  body[data-time="night"] .toggle[aria-pressed="true"] .track {
+    background: var(--pink); border-color: var(--milk);
+  }
+  body[data-time="night"] .toggle .track::after { border-color: var(--milk); }
+
+  .keyboard-hint {
+    font-size:10.5px; color:var(--ink-soft); opacity:0.7;
+    text-align: right;
+    font-style: italic; letter-spacing: 0.02em;
+    font-variation-settings:'opsz' 9,'wght' 400,'SOFT' 60;
+    line-height: 1.6;
+  }
+  body[data-time="night"] .keyboard-hint { color:var(--milk-3); }
+  .keyboard-hint span { white-space: nowrap; }
+  .keyboard-hint span + span::before { content: " · "; margin: 0 6px; opacity: 0.5; }
+  .keyboard-hint kbd {
+    font-family:inherit; font-style:normal;
+    color: var(--spot-soft);
+    font-size:10.5px; letter-spacing: 0.03em;
+    font-variation-settings:'wght' 600;
+    text-transform: lowercase;
+    background: transparent; border: none; padding: 0 3px 0 0; box-shadow: none;
+  }
+  body[data-time="night"] .keyboard-hint kbd { color:var(--milk-3); }
+
+  /* ── MODAL ───────────────────────────────────────────── */
+  .modal-backdrop {
+    position:fixed; inset:0;
+    background:rgba(30,27,24,0.4);
+    backdrop-filter: blur(3px);
+    z-index:100; display:none;
+    align-items:center; justify-content:center; padding:20px;
+    animation:fade-in 0.2s ease;
+  }
+  .modal-backdrop.open { display:flex; }
+  @keyframes fade-in { from { opacity:0; } to { opacity:1; } }
+  .modal {
+    background:var(--milk); border-radius:var(--radius-xl);
+    padding:28px 28px 24px;
+    max-width:500px; width:100%; max-height:90vh; overflow-y:auto;
+    box-shadow:0 20px 60px rgba(30,27,24,0.25), 0 2px 8px rgba(30,27,24,0.1);
+    position:relative;
+    border: 1px solid var(--milk-3);
+    animation:pop-in 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes pop-in {
+    from { transform: scale(0.9); opacity:0; }
+    to   { transform: scale(1); opacity:1; }
+  }
+  body[data-time="night"] .modal { background:#3B475C; color:var(--milk); border-color: rgba(251,248,241,0.12); }
+  .modal h2 {
+    all:unset; display:block;
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 60,'wght' 700,'SOFT' 100;
+    font-size:24px; color:var(--spot); margin-bottom:20px;
+  }
+  body[data-time="night"] .modal h2 { color:var(--milk); }
+  .modal-close {
+    all:unset; cursor:pointer;
+    position:absolute; top:20px; right:20px;
+    width:32px; height:32px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink-soft); font-size:22px;
+    transition:background 0.2s, color 0.2s;
+  }
+  .modal-close:hover { background:var(--milk-2); color:var(--spot); }
+  body[data-time="night"] .modal-close { color:var(--milk-3); }
+  body[data-time="night"] .modal-close:hover { background:rgba(251,248,241,0.08); color:var(--milk); }
+  .setting {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 0; gap:16px;
+    border-top:1px solid var(--milk-3);
+  }
+  body[data-time="night"] .setting { border-color:rgba(251,248,241,0.15); }
+  .setting:first-of-type { border-top:none; }
+  .setting[hidden] { display:none; }
+  .setting-label { display:flex; flex-direction:column; gap:2px; flex:1; min-width:0; }
+  .setting-title { font-size:15px; color:var(--ink); font-variation-settings:'wght' 500; }
+  body[data-time="night"] .setting-title { color:var(--milk); }
+  .setting-hint { font-size:12px; color:var(--ink-soft); font-style:italic; }
+  body[data-time="night"] .setting-hint { color:var(--milk-3); }
+  .setting-control { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .setting input[type="number"] {
+    width:60px; padding:8px 10px;
+    border:1.5px solid var(--milk-3); border-radius:8px;
+    font-family:'Fraunces',serif;
+    font-variation-settings:'wght' 500;
+    font-size:15px; text-align:center;
+    background:transparent; color:var(--ink);
+  }
+  body[data-time="night"] .setting input[type="number"] { color:var(--milk); border-color:rgba(251,248,241,0.2); }
+  .setting input[type="number"]:focus { outline:none; border-color:var(--spot); }
+  .setting select {
+    padding:8px 12px;
+    border:1.5px solid var(--milk-3); border-radius:8px;
+    font-family:'Fraunces',serif;
+    font-variation-settings:'wght' 500;
+    font-size:15px; background:transparent; color:var(--ink); cursor:pointer;
+  }
+  body[data-time="night"] .setting select { color:var(--milk); border-color:rgba(251,248,241,0.2); background:#3B475C; }
+  .switch {
+    position:relative; width:42px; height:24px;
+    background:var(--milk-3); border-radius:999px;
+    cursor:pointer; transition:background 0.2s;
+    flex-shrink:0; border:none; padding:0;
+  }
+  .switch::after {
+    content:''; position:absolute; top:3px; left:3px;
+    width:18px; height:18px; background:var(--milk); border-radius:50%;
+    transition:transform 0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.2);
+  }
+  .switch[aria-checked="true"] { background:var(--meadow); }
+  .switch[aria-checked="true"]::after { transform: translateX(18px); }
+  .switch:focus-visible { outline:2px solid var(--spot); outline-offset:2px; }
+  .setting input[type="range"] { width:120px; }
+
+  .upload-btn, .upload-preview, .upload-remove, .preview-sound {
+    all:unset; cursor:pointer;
+    padding:8px 12px; border-radius:999px;
+    font-family:'Fraunces',serif;
+    font-variation-settings:'wght' 500;
+    font-size:13px;
+    border:1.5px solid var(--milk-3);
+    color:var(--ink-soft); background:transparent;
+    display:inline-flex; align-items:center; gap:6px;
+    transition:background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .upload-btn:hover, .upload-preview:hover, .upload-remove:hover, .preview-sound:hover {
+    background:var(--milk-2); color:var(--spot); border-color:var(--spot);
+  }
+  body[data-time="night"] .upload-btn,
+  body[data-time="night"] .upload-preview,
+  body[data-time="night"] .upload-remove,
+  body[data-time="night"] .preview-sound {
+    color:var(--milk-3); border-color:rgba(251,248,241,0.2);
+  }
+  body[data-time="night"] .upload-btn:hover,
+  body[data-time="night"] .upload-preview:hover,
+  body[data-time="night"] .upload-remove:hover,
+  body[data-time="night"] .preview-sound:hover {
+    background:rgba(251,248,241,0.08); color:var(--milk); border-color:var(--milk);
+  }
+  .upload-btn:focus-visible, .upload-preview:focus-visible,
+  .upload-remove:focus-visible, .preview-sound:focus-visible {
+    outline:2px solid var(--spot); outline-offset:2px;
+  }
+  .upload-preview, .upload-remove, .preview-sound { padding:8px 10px; width:34px; justify-content:center; }
+  .audio-name {
+    display:block; margin-top:4px;
+    font-size:11px; color:var(--meadow-deep); font-style:normal;
+    font-variation-settings:'wght' 500;
+    max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  body[data-time="night"] .audio-name { color:var(--milk); }
+  .audio-name:empty { display:none; }
+
+  .modal-actions {
+    display:flex; gap:8px; padding-top:16px; align-items:center;
+    justify-content:space-between; flex-wrap:wrap;
+    border-top:1px solid var(--milk-3); margin-top:12px;
+  }
+  body[data-time="night"] .modal-actions { border-color:rgba(251,248,241,0.15); }
+  .modal-actions .action-group { display:flex; gap:8px; flex-wrap:wrap; }
+  .modal-actions .danger {
+    all:unset; cursor:pointer;
+    padding:8px 14px; color:var(--pink-deep); font-size:13px;
+    border-radius:8px; transition:background 0.2s;
+  }
+  .modal-actions .danger:hover { background:var(--pink-tint); }
+  body[data-time="night"] .modal-actions .danger:hover { background:rgba(240,181,176,0.15); }
+  .modal-actions .action-btn {
+    all:unset; cursor:pointer;
+    padding:8px 14px; border-radius:8px;
+    font-size:13px; color:var(--ink-soft);
+    font-family:'Fraunces',serif;
+    font-variation-settings:'wght' 500;
+    border:1px solid var(--milk-3);
+    transition:background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .modal-actions .action-btn:hover {
+    background:var(--milk-2); color:var(--spot); border-color:var(--spot);
+  }
+  body[data-time="night"] .modal-actions .action-btn { color:var(--milk-3); border-color:rgba(251,248,241,0.2); }
+  body[data-time="night"] .modal-actions .action-btn:hover { background:rgba(251,248,241,0.08); color:var(--milk); border-color:var(--milk); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  @media (max-width: 640px) {
+    main { padding:20px 14px 48px; gap:16px; }
+    header.brand { padding-bottom: 8px; }
+    .wordmark { font-size: 32px; }
+    .timer { font-size: 96px; }
+    .hero-card { padding: 10px 10px 22px; gap: 16px; }
+    .scene-wrap { aspect-ratio: 16/10; }
+    .timer-section { padding: 4px 8px 0; gap: 12px; }
+    button.primary { padding:13px 36px; font-size:20px; min-width:150px; }
+    button.ghost { padding:10px 16px; font-size:13px; }
+    .mode-tab { padding:8px 14px; font-size:13px; }
+    .mode-tab .mins::before { height: 9px; margin-right: 6px; }
+    .stats-strip { padding: 14px 18px; }
+    .stat-chip { margin-right: 18px; }
+    .stat-chip.wide { flex-basis: 100%; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--milk-3); }
+    body[data-time="night"] .stat-chip.wide { border-top-color: rgba(251,248,241,0.12); }
+    .stat-divider { margin-right: 18px; height: 32px; }
+    .stat-divider:last-of-type { display: none; } /* hide the divider before the wrapping wide chip */
+    .panel-card { padding: 18px 18px 16px; }
+    footer.foot { flex-direction:column; gap:12px; padding-top:12px; }
+    .keyboard-hint { font-size:10px; text-align:center; }
+    .moo-bubble { font-size:17px; padding:6px 14px; }
+    .active-task-banner .text { max-width:180px; }
+  }
+  @media (max-width: 420px) {
+    .wordmark { font-size:26px; }
+    .timer { font-size: 76px; }
+    .stats-strip { padding: 14px 16px; }
+    .stat-chip .chip-value { font-size: 22px; }
+    button.primary { font-size:19px; padding:12px 30px; min-width:140px; }
+  }
+</style>
+</head>
+<body class="mode-focus" data-time="day">
+<main>
+  <header class="brand">
+    <div class="wordmark">moodoro<span class="dot" aria-hidden="true"></span></div>
+    <div class="header-right">
+      <div class="lang-chip" role="tablist" aria-label="Language">
+        <button data-lang="pt" aria-selected="true">pt</button>
+        <button data-lang="en" aria-selected="false">en</button>
+        <button data-lang="uk" aria-selected="false">uk</button>
+      </div>
+      <button class="icon-btn" id="settingsBtn" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="hero-card">
+    <div class="scene-wrap">
+      <div class="moo-bubble" id="mooBubble" aria-hidden="true">muuu</div>
+<svg class="scene" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-label="Pasture scene">
+      <defs>
+        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--sky-top)"/>
+          <stop offset="60%" stop-color="var(--sky-mid)"/>
+          <stop offset="100%" stop-color="var(--sky-bottom)"/>
+        </linearGradient>
+        <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="var(--sun-color)" stop-opacity="1"/>
+          <stop offset="40%" stop-color="var(--sun-glow)" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="var(--sun-glow)" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <rect width="800" height="400" fill="url(#skyGrad)"/>
+      <g class="stars">
+        <circle cx="80" cy="60" r="1.5" fill="var(--star)"/>
+        <circle cx="150" cy="40" r="1" fill="var(--star)"/>
+        <circle cx="220" cy="80" r="1.5" fill="var(--star)"/>
+        <circle cx="310" cy="50" r="1" fill="var(--star)"/>
+        <circle cx="380" cy="90" r="1.5" fill="var(--star)"/>
+        <circle cx="470" cy="30" r="1" fill="var(--star)"/>
+        <circle cx="550" cy="70" r="1.5" fill="var(--star)"/>
+        <circle cx="640" cy="45" r="1" fill="var(--star)"/>
+        <circle cx="720" cy="85" r="1.5" fill="var(--star)"/>
+        <circle cx="120" cy="130" r="1" fill="var(--star)"/>
+        <circle cx="580" cy="120" r="1" fill="var(--star)"/>
+        <circle cx="40" cy="100" r="1" fill="var(--star)"/>
+        <circle cx="270" cy="150" r="1" fill="var(--star)"/>
+        <circle cx="700" cy="160" r="1" fill="var(--star)"/>
+      </g>
+      <g id="celestial">
+        <g class="sun-rays">
+          <line x1="640" y1="30" x2="640" y2="45" stroke="var(--sun-color)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="640" y1="135" x2="640" y2="150" stroke="var(--sun-color)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="580" y1="90" x2="595" y2="90" stroke="var(--sun-color)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="685" y1="90" x2="700" y2="90" stroke="var(--sun-color)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="597" y1="47" x2="608" y2="58" stroke="var(--sun-color)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="672" y1="122" x2="683" y2="133" stroke="var(--sun-color)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="597" y1="133" x2="608" y2="122" stroke="var(--sun-color)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="672" y1="58" x2="683" y2="47" stroke="var(--sun-color)" stroke-width="2" stroke-linecap="round"/>
+        </g>
+        <circle class="sun-glow-halo" cx="640" cy="90" r="70" fill="url(#sunGlow)"/>
+        <circle cx="640" cy="90" r="34" fill="var(--sun-color)"/>
+      </g>
+      <g class="cloud-a" opacity="0.85">
+        <ellipse cx="50" cy="110" rx="45" ry="14" fill="#FFFFFF"/>
+        <ellipse cx="80" cy="100" rx="30" ry="12" fill="#FFFFFF"/>
+        <ellipse cx="30" cy="105" rx="24" ry="10" fill="#FFFFFF"/>
+      </g>
+      <g class="cloud-b" opacity="0.75" transform="translate(0,-40)">
+        <ellipse cx="200" cy="140" rx="35" ry="11" fill="#FFFFFF"/>
+        <ellipse cx="225" cy="132" rx="24" ry="9" fill="#FFFFFF"/>
+      </g>
+      <g class="cloud-c" opacity="0.8" transform="translate(0,30)">
+        <ellipse cx="400" cy="70" rx="52" ry="15" fill="#FFFFFF"/>
+        <ellipse cx="430" cy="60" rx="28" ry="12" fill="#FFFFFF"/>
+        <ellipse cx="380" cy="65" rx="22" ry="10" fill="#FFFFFF"/>
+      </g>
+      <path d="M 0 260 Q 100 200 200 220 T 400 210 T 600 215 T 800 205 L 800 300 L 0 300 Z" fill="var(--hill-far)"/>
+      <path d="M 0 290 Q 120 240 240 260 T 480 250 T 800 260 L 800 320 L 0 320 Z" fill="var(--hill-mid)"/>
+      <g class="tree">
+        <rect x="93" y="270" width="14" height="45" fill="var(--tree-trunk)" rx="1"/>
+        <g class="tree-canopy">
+          <ellipse cx="100" cy="245" rx="42" ry="38" fill="var(--tree-canopy)"/>
+          <ellipse cx="78" cy="235" rx="26" ry="24" fill="var(--tree-canopy-light)" opacity="0.9"/>
+          <ellipse cx="122" cy="240" rx="28" ry="24" fill="var(--tree-canopy-light)" opacity="0.9"/>
+          <ellipse cx="100" cy="220" rx="30" ry="18" fill="var(--tree-canopy-light)" opacity="0.8"/>
+        </g>
+      </g>
+      <g class="windmill" transform="translate(680,240)">
+        <path d="M -10 65 L 0 -10 L 20 -10 L 30 65 Z" fill="var(--windmill-body)" stroke="var(--spot)" stroke-width="1.5"/>
+        <path d="M 0 -10 L 10 -20 L 20 -10 Z" fill="var(--windmill-roof)"/>
+        <rect x="4" y="45" width="12" height="20" fill="var(--windmill-roof)"/>
+        <rect x="7" y="48" width="6" height="3" fill="var(--milk)" opacity="0.4"/>
+        <circle cx="10" cy="20" r="3" fill="var(--milk)" opacity="0.5"/>
+        <g transform="translate(10,-5)">
+          <g>
+            <rect x="-1.5" y="-32" width="3" height="64" fill="var(--windmill-roof)" rx="0.5"/>
+            <rect x="-32" y="-1.5" width="64" height="3" fill="var(--windmill-roof)" rx="0.5"/>
+            <rect x="-2" y="-30" width="4" height="14" fill="var(--milk-2)" opacity="0.85"/>
+            <rect x="-2" y="16" width="4" height="14" fill="var(--milk-2)" opacity="0.85"/>
+            <rect x="-30" y="-2" width="14" height="4" fill="var(--milk-2)" opacity="0.85"/>
+            <rect x="16" y="-2" width="14" height="4" fill="var(--milk-2)" opacity="0.85"/>
+            <circle r="4" fill="var(--spot)"/>
+            <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 0 0" to="360 0 0" dur="12s" repeatCount="indefinite"/>
+          </g>
+        </g>
+      </g>
+      <path d="M 0 315 Q 140 280 280 295 T 560 290 T 800 300 L 800 340 L 0 340 Z" fill="var(--hill-near)"/>
+      <g id="pond">
+        <ellipse cx="180" cy="330" rx="55" ry="9" fill="var(--pond)" stroke="var(--spot)" stroke-width="1" opacity="0.85"/>
+        <ellipse class="pond-highlight" cx="165" cy="327" rx="18" ry="2.5" fill="var(--pond-highlight)"/>
+        <ellipse class="pond-highlight" cx="200" cy="332" rx="10" ry="1.5" fill="var(--pond-highlight)"/>
+      </g>
+      <g id="distant-cows">
+        <g transform="translate(560,325)">
+          <ellipse cx="0" cy="0" rx="14" ry="6" fill="var(--distant-cow)"/>
+          <ellipse cx="10" cy="-3" rx="6" ry="5" fill="var(--distant-cow)"/>
+          <rect x="-8" y="4" width="2" height="4" fill="var(--distant-cow)"/>
+          <rect x="-3" y="4" width="2" height="4" fill="var(--distant-cow)"/>
+          <rect x="4" y="4" width="2" height="4" fill="var(--distant-cow)"/>
+          <rect x="9" y="4" width="2" height="4" fill="var(--distant-cow)"/>
+        </g>
+        <g transform="translate(510,320)">
+          <ellipse cx="0" cy="0" rx="10" ry="4" fill="var(--distant-cow)"/>
+          <ellipse cx="7" cy="-2" rx="4" ry="3" fill="var(--distant-cow)"/>
+          <rect x="-6" y="3" width="1.5" height="3" fill="var(--distant-cow)"/>
+          <rect x="-2" y="3" width="1.5" height="3" fill="var(--distant-cow)"/>
+          <rect x="2" y="3" width="1.5" height="3" fill="var(--distant-cow)"/>
+          <rect x="6" y="3" width="1.5" height="3" fill="var(--distant-cow)"/>
+        </g>
+      </g>
+      <g id="fence" opacity="0.9">
+        <line x1="0" y1="335" x2="800" y2="332" stroke="var(--wood)" stroke-width="3"/>
+        <line x1="0" y1="345" x2="800" y2="342" stroke="var(--wood)" stroke-width="3"/>
+        <rect x="40" y="325" width="4" height="26" fill="var(--wood-dark)"/>
+        <rect x="260" y="325" width="4" height="26" fill="var(--wood-dark)"/>
+        <rect x="400" y="325" width="4" height="26" fill="var(--wood-dark)"/>
+        <rect x="580" y="325" width="4" height="26" fill="var(--wood-dark)"/>
+        <rect x="760" y="325" width="4" height="26" fill="var(--wood-dark)"/>
+      </g>
+      <rect x="0" y="350" width="800" height="50" fill="var(--grass)"/>
+      <rect x="0" y="350" width="800" height="3" fill="var(--grass-dark)" opacity="0.4"/>
+      <g id="flowers">
+        <g transform="translate(30,378)"><ellipse cx="0" cy="0" rx="3" ry="2" fill="#FBF8F1"/><ellipse cx="-3" cy="0" rx="2" ry="2.5" fill="#FBF8F1"/><ellipse cx="3" cy="0" rx="2" ry="2.5" fill="#FBF8F1"/><ellipse cx="0" cy="-2.5" rx="2" ry="2" fill="#FBF8F1"/><ellipse cx="0" cy="2.5" rx="2" ry="2" fill="#FBF8F1"/><circle r="1.2" fill="#F5D06A"/></g>
+        <g transform="translate(95,388)"><circle r="3.5" fill="#D94F3C"/><circle r="1.2" fill="#2A1815"/></g>
+        <g transform="translate(155,375)"><ellipse cx="0" cy="0" rx="3" ry="2" fill="#FBF8F1"/><ellipse cx="-3" cy="0" rx="2" ry="2.5" fill="#FBF8F1"/><ellipse cx="3" cy="0" rx="2" ry="2.5" fill="#FBF8F1"/><ellipse cx="0" cy="-2.5" rx="2" ry="2" fill="#FBF8F1"/><ellipse cx="0" cy="2.5" rx="2" ry="2" fill="#FBF8F1"/><circle r="1.2" fill="#F5D06A"/></g>
+        <g transform="translate(240,390)"><circle cx="-2" cy="0" r="1.5" fill="#6B7CB8"/><circle cx="2" cy="0" r="1.5" fill="#6B7CB8"/><circle cx="0" cy="-2" r="1.5" fill="#6B7CB8"/><circle cx="0" cy="2" r="1.5" fill="#6B7CB8"/><circle r="1" fill="#F5D06A"/></g>
+        <g transform="translate(305,378)"><ellipse cx="0" cy="0" rx="3" ry="2" fill="#FBF8F1"/><ellipse cx="-3" cy="0" rx="2" ry="2.5" fill="#FBF8F1"/><ellipse cx="3" cy="0" rx="2" ry="2.5" fill="#FBF8F1"/><ellipse cx="0" cy="-2.5" rx="2" ry="2" fill="#FBF8F1"/><ellipse cx="0" cy="2.5" rx="2" ry="2" fill="#FBF8F1"/><circle r="1.2" fill="#F5D06A"/></g>
+        <g transform="translate(345,388)"><circle r="3.5" fill="#D94F3C"/><circle r="1.2" fill="#2A1815"/></g>
+        <g transform="translate(555,376)"><ellipse cx="0" cy="0" rx="3" ry="2" fill="#FBF8F1"/><ellipse cx="-3" cy="0" rx="2" ry="2.5" fill="#FBF8F1"/><ellipse cx="3" cy="0" rx="2" ry="2.5" fill="#FBF8F1"/><ellipse cx="0" cy="-2.5" rx="2" ry="2" fill="#FBF8F1"/><ellipse cx="0" cy="2.5" rx="2" ry="2" fill="#FBF8F1"/><circle r="1.2" fill="#F5D06A"/></g>
+        <g transform="translate(605,390)"><circle cx="-2" cy="0" r="1.5" fill="#6B7CB8"/><circle cx="2" cy="0" r="1.5" fill="#6B7CB8"/><circle cx="0" cy="-2" r="1.5" fill="#6B7CB8"/><circle cx="0" cy="2" r="1.5" fill="#6B7CB8"/><circle r="1" fill="#F5D06A"/></g>
+        <g transform="translate(645,378)"><ellipse cx="0" cy="0" rx="3" ry="2" fill="#FBF8F1"/><ellipse cx="-3" cy="0" rx="2" ry="2.5" fill="#FBF8F1"/><ellipse cx="3" cy="0" rx="2" ry="2.5" fill="#FBF8F1"/><ellipse cx="0" cy="-2.5" rx="2" ry="2" fill="#FBF8F1"/><ellipse cx="0" cy="2.5" rx="2" ry="2" fill="#FBF8F1"/><circle r="1.2" fill="#F5D06A"/></g>
+        <g transform="translate(735,388)"><circle r="3.5" fill="#D94F3C"/><circle r="1.2" fill="#2A1815"/></g>
+        <g transform="translate(770,376)"><ellipse cx="0" cy="0" rx="3" ry="2" fill="#FBF8F1"/><ellipse cx="-3" cy="0" rx="2" ry="2.5" fill="#FBF8F1"/><ellipse cx="3" cy="0" rx="2" ry="2.5" fill="#FBF8F1"/><ellipse cx="0" cy="-2.5" rx="2" ry="2" fill="#FBF8F1"/><ellipse cx="0" cy="2.5" rx="2" ry="2" fill="#FBF8F1"/><circle r="1.2" fill="#F5D06A"/></g>
+      </g>
+      <g id="grass-tufts">
+        <g class="grass-tuft" transform="translate(70,370)"><path d="M 0 12 L -3 0 M 0 12 L 0 -2 M 0 12 L 3 0" stroke="var(--grass-dark)" stroke-width="1.5" fill="none" stroke-linecap="round"/></g>
+        <g class="grass-tuft" transform="translate(280,380)"><path d="M 0 12 L -4 -2 M 0 12 L 0 -4 M 0 12 L 4 -1" stroke="var(--grass-dark)" stroke-width="1.5" fill="none" stroke-linecap="round"/></g>
+        <g class="grass-tuft" transform="translate(380,375)"><path d="M 0 12 L -3 0 M 0 12 L 0 -2 M 0 12 L 3 0" stroke="var(--grass-dark)" stroke-width="1.5" fill="none" stroke-linecap="round"/></g>
+        <g class="grass-tuft" transform="translate(680,378)"><path d="M 0 12 L -4 -2 M 0 12 L 0 -4 M 0 12 L 4 -1" stroke="var(--grass-dark)" stroke-width="1.5" fill="none" stroke-linecap="round"/></g>
+      </g>
+      <g class="butterfly-group">
+        <g transform="translate(-50,180)">
+          <ellipse class="butterfly-wing" cx="-5" cy="0" rx="6" ry="8" fill="#F0B5B0" stroke="var(--spot)" stroke-width="1"/>
+          <ellipse class="butterfly-wing" cx="5" cy="0" rx="6" ry="8" fill="#F0B5B0" stroke="var(--spot)" stroke-width="1"/>
+          <line x1="0" y1="-4" x2="0" y2="6" stroke="var(--spot)" stroke-width="1.5" stroke-linecap="round"/>
+        </g>
+      </g>
+      <g class="butterfly-group-2">
+        <g transform="translate(-70,220)">
+          <ellipse class="butterfly-wing" cx="-4" cy="0" rx="5" ry="7" fill="#F5D06A" stroke="var(--spot)" stroke-width="1"/>
+          <ellipse class="butterfly-wing" cx="4" cy="0" rx="5" ry="7" fill="#F5D06A" stroke="var(--spot)" stroke-width="1"/>
+          <line x1="0" y1="-3" x2="0" y2="5" stroke="var(--spot)" stroke-width="1.2" stroke-linecap="round"/>
+        </g>
+      </g>
+      <g class="bird-group">
+        <g class="bird-shape">
+          <path d="M -8 0 Q -4 -5 0 0 Q 4 -5 8 0" stroke="var(--spot)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        </g>
+      </g>
+      <g class="fireflies">
+        <circle class="firefly" cx="150" cy="240" r="2"/>
+        <circle class="firefly" cx="220" cy="260" r="1.5"/>
+        <circle class="firefly" cx="320" cy="230" r="2"/>
+        <circle class="firefly" cx="450" cy="270" r="1.8"/>
+        <circle class="firefly" cx="520" cy="245" r="2"/>
+        <circle class="firefly" cx="380" cy="290" r="1.5"/>
+        <circle class="firefly" cx="600" cy="260" r="2"/>
+        <circle class="firefly" cx="250" cy="300" r="1.5"/>
+      </g>
+      <g class="sparkles">
+        <path class="sparkle" d="M 280 140 L 284 148 L 292 152 L 284 156 L 280 164 L 276 156 L 268 152 L 276 148 Z" fill="#F5D06A"/>
+        <path class="sparkle" d="M 520 130 L 524 138 L 532 142 L 524 146 L 520 154 L 516 146 L 508 142 L 516 138 Z" fill="#F0B5B0"/>
+        <path class="sparkle" d="M 260 220 L 263 226 L 269 229 L 263 232 L 260 238 L 257 232 L 251 229 L 257 226 Z" fill="#F5D06A"/>
+        <path class="sparkle" d="M 540 210 L 543 216 L 549 219 L 543 222 L 540 228 L 537 222 L 531 219 L 537 216 Z" fill="#F0B5B0"/>
+        <path class="sparkle" d="M 350 120 L 353 126 L 359 129 L 353 132 L 350 138 L 347 132 L 341 129 L 347 126 Z" fill="#F5D06A"/>
+        <path class="sparkle" d="M 450 110 L 453 116 L 459 119 L 453 122 L 450 128 L 447 122 L 441 119 L 447 116 Z" fill="#F0B5B0"/>
+        <path class="sparkle" d="M 220 180 L 223 186 L 229 189 L 223 192 L 220 198 L 217 192 L 211 189 L 217 186 Z" fill="#F5D06A"/>
+        <path class="sparkle" d="M 580 180 L 583 186 L 589 189 L 583 192 L 580 198 L 577 192 L 571 189 L 577 186 Z" fill="#F0B5B0"/>
+      </g>
+      <g class="cow-group" transform="translate(400,230)">
+        <ellipse cx="0" cy="120" rx="130" ry="8" fill="var(--spot)" opacity="0.15"/>
+        <g class="tail-group" transform="translate(-108,-30)">
+          <path d="M 0 0 Q -18 -8 -22 15 Q -22 30 -8 34" fill="none" stroke="var(--spot)" stroke-width="5" stroke-linecap="round"/>
+          <ellipse cx="-8" cy="34" rx="6" ry="5" fill="var(--spot)"/>
+        </g>
+        <rect x="-55" y="55" width="14" height="42" rx="4" fill="var(--milk)" stroke="var(--spot)" stroke-width="3"/>
+        <rect x="43" y="55" width="14" height="42" rx="4" fill="var(--milk)" stroke="var(--spot)" stroke-width="3"/>
+        <rect x="-57" y="90" width="18" height="10" rx="3" fill="var(--spot)"/>
+        <rect x="41" y="90" width="18" height="10" rx="3" fill="var(--spot)"/>
+        <g class="cow-body">
+          <ellipse cx="0" cy="0" rx="100" ry="60" fill="var(--milk)" stroke="var(--spot)" stroke-width="3.5"/>
+          <path d="M -70 -20 Q -78 -42 -55 -48 Q -30 -52 -20 -30 Q -18 -12 -38 -4 Q -62 -2 -70 -20 Z" fill="var(--spot)"/>
+          <path d="M 25 30 Q 15 6 40 -2 Q 65 -6 78 18 Q 82 38 58 44 Q 32 46 25 30 Z" fill="var(--spot)"/>
+          <path d="M 15 -40 Q 25 -50 40 -44 Q 48 -34 38 -26 Q 22 -24 15 -40 Z" fill="var(--spot)"/>
+        </g>
+        <ellipse cx="0" cy="60" rx="26" ry="14" fill="var(--pink)" stroke="var(--spot)" stroke-width="3"/>
+        <circle cx="-11" cy="68" r="3.5" fill="var(--pink-deep)"/>
+        <circle cx="0" cy="70" r="3.5" fill="var(--pink-deep)"/>
+        <circle cx="11" cy="68" r="3.5" fill="var(--pink-deep)"/>
+        <g class="head-group" style="transition: transform 1.2s ease;">
+          <ellipse cx="90" cy="-70" rx="7" ry="12" fill="var(--horn)" stroke="var(--spot)" stroke-width="2.5" transform="rotate(-15 90 -70)"/>
+          <ellipse cx="150" cy="-70" rx="7" ry="12" fill="var(--horn)" stroke="var(--spot)" stroke-width="2.5" transform="rotate(15 150 -70)"/>
+          <ellipse class="ear-left" cx="82" cy="-40" rx="17" ry="13" fill="var(--milk)" stroke="var(--spot)" stroke-width="3" transform="rotate(-25 82 -40)"/>
+          <ellipse cx="82" cy="-38" rx="9" ry="7" fill="var(--pink)" transform="rotate(-25 82 -38)"/>
+          <ellipse class="ear-right" cx="160" cy="-40" rx="17" ry="13" fill="var(--milk)" stroke="var(--spot)" stroke-width="3" transform="rotate(25 160 -40)"/>
+          <ellipse cx="160" cy="-38" rx="9" ry="7" fill="var(--pink)" transform="rotate(25 160 -38)"/>
+          <ellipse cx="120" cy="0" rx="50" ry="54" fill="var(--milk)" stroke="var(--spot)" stroke-width="3.5"/>
+          <path d="M 82 -28 Q 90 -46 112 -40 Q 130 -32 126 -14 Q 112 -8 95 -12 Q 82 -16 82 -28 Z" fill="var(--spot)"/>
+          <path d="M 145 25 Q 162 18 165 32 Q 163 42 150 40 Q 140 35 145 25 Z" fill="var(--spot)"/>
+          <ellipse class="eye left" cx="103" cy="-6" rx="5" ry="7" fill="var(--spot)"/>
+          <ellipse class="eye right" cx="137" cy="-6" rx="5" ry="7" fill="var(--spot)"/>
+          <circle cx="105" cy="-8" r="1.8" fill="var(--milk)"/>
+          <circle cx="139" cy="-8" r="1.8" fill="var(--milk)"/>
+          <circle class="cheek left" cx="88" cy="18" r="7" fill="var(--pink)" opacity="0"/>
+          <circle class="cheek right" cx="152" cy="18" r="7" fill="var(--pink)" opacity="0"/>
+          <path class="eyelash" d="M 98 -6 L 95 -10 M 103 -10 L 103 -14 M 108 -6 L 111 -10" stroke="var(--spot)" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <path class="eyelash" d="M 132 -6 L 129 -10 M 137 -10 L 137 -14 M 142 -6 L 145 -10" stroke="var(--spot)" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <g class="muzzle-group">
+            <ellipse cx="120" cy="30" rx="36" ry="26" fill="var(--pink)" stroke="var(--spot)" stroke-width="3"/>
+            <ellipse cx="108" cy="28" rx="3" ry="5" fill="var(--spot)"/>
+            <ellipse cx="132" cy="28" rx="3" ry="5" fill="var(--spot)"/>
+            <path d="M 110 44 Q 120 50 130 44" stroke="var(--spot)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          </g>
+          <g class="grass-in-mouth">
+            <path d="M 148 42 L 158 30 M 152 44 L 165 38 M 145 46 L 160 46" stroke="var(--grass-dark)" stroke-width="2" stroke-linecap="round" fill="none"/>
+          </g>
+          <g class="zzz">
+            <text x="175" y="-45" font-family="Fraunces, serif" font-size="22" font-weight="600" fill="var(--ink-soft)">z</text>
+            <text x="185" y="-58" font-family="Fraunces, serif" font-size="18" font-weight="600" fill="var(--ink-soft)">z</text>
+            <text x="192" y="-68" font-family="Fraunces, serif" font-size="14" font-weight="600" fill="var(--ink-soft)">z</text>
+          </g>
+        </g>
+      </g>
+    </svg>
+    </div>
+    <div class="timer-section">
+      <div id="activeTaskBanner" class="active-task-banner" hidden>
+        <span class="icon" aria-hidden="true">🎯</span>
+        <span class="text" id="activeTaskText"></span>
+        <span class="pomodoros" id="activeTaskPomodoros">0</span>
+        <button class="clear" id="activeTaskClear" aria-label="clear active task">×</button>
+      </div>
+      <div class="mode-caption" id="modeCaption">hora de focar</div>
+      <div class="timer" role="timer" aria-live="polite">
+        <span id="mins">25</span>
+        <span class="colon" aria-hidden="true"><span></span><span></span></span>
+        <span id="secs">00</span>
+      </div>
+      <div id="completionPrompt" class="completion-prompt" hidden>
+        <div class="question" id="completionQuestion"></div>
+        <div class="prompt-actions">
+          <button class="prompt-yes" id="promptDone" data-i18n="promptDone">sim, marcar feita</button>
+          <button class="prompt-no" id="promptContinue" data-i18n="promptContinue">não, mais uma</button>
+        </div>
+      </div>
+      <div class="mode-tabs" role="tablist">
+        <button class="mode-tab" role="tab" data-mode="focus" aria-selected="true">
+          <span data-i18n="focus">foco</span> <span class="mins" data-slot="focus">25</span>
+        </button>
+        <button class="mode-tab" role="tab" data-mode="break" aria-selected="false">
+          <span data-i18n="break">pausa</span> <span class="mins" data-slot="break">5</span>
+        </button>
+        <button class="mode-tab" role="tab" data-mode="long" aria-selected="false">
+          <span data-i18n="long">descanso longo</span> <span class="mins" data-slot="long">15</span>
+        </button>
+      </div>
+      <div class="controls">
+        <button class="primary" id="playBtn">começar</button>
+        <button class="ghost" id="skipBtn" data-i18n="skip">pular</button>
+        <button class="ghost" id="resetBtn" data-i18n="reset">zerar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat-chip">
+      <span class="chip-value" id="statFocus">0 min</span>
+      <span class="chip-label" data-i18n="focusedToday">focado hoje</span>
+    </div>
+    <div class="stat-divider" aria-hidden="true"></div>
+    <div class="stat-chip">
+      <span class="chip-value" id="statStreak">0</span>
+      <span class="chip-label" data-i18n="dayStreak">na sequência</span>
+    </div>
+    <div class="stat-divider" aria-hidden="true"></div>
+    <div class="stat-chip wide">
+      <div class="bottles-inline" id="bottles"></div>
+      <div class="bottles-text">
+        <span class="label" id="progressLabel">nenhuma sessão hoje ainda</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="support-grid">
+    <section class="panel-card">
+      <h2>
+        <span><span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="18" rx="2.5"/><path d="M9 2.5h6v3H9z" fill="var(--pink)" stroke="currentColor"/><ellipse cx="10" cy="12" rx="1.6" ry="1.2" fill="currentColor" stroke="none"/><ellipse cx="14.5" cy="16" rx="1.3" ry="1" fill="currentColor" stroke="none"/><line x1="8.5" y1="18.5" x2="12" y2="18.5" opacity="0.5"/></svg></span><span data-i18n="tasksTitle">tarefas</span></span>
+        <span class="meta" id="taskMeta"></span>
+      </h2>
+      <ul class="task-list" id="taskList" role="list"></ul>
+      <div class="task-empty" id="taskEmpty" data-i18n="tasksEmpty">nada pra fazer. adicione uma coisa pra focar.</div>
+      <form class="task-add" id="taskAdd">
+        <input type="text" id="taskInput" data-i18n-placeholder="tasksPlaceholder" placeholder="ex.: terminar o rascunho do relatório" maxlength="120"/>
+        <button type="submit" aria-label="add">+</button>
+      </form>
+    </section>
+    <section class="panel-card">
+      <h2>
+        <span><span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="14" width="3" height="6" rx="0.5" fill="var(--meadow-tint)" stroke="currentColor"/><rect x="10.5" y="10" width="3" height="10" rx="0.5" fill="var(--meadow-tint)" stroke="currentColor"/><rect x="16" y="6" width="3" height="14" rx="0.5" fill="var(--meadow)" stroke="currentColor"/><line x1="3" y1="20.5" x2="21" y2="20.5"/></svg></span><span data-i18n="weeklyTitle">esta semana</span></span>
+        <span class="meta" id="weeklyMeta"></span>
+      </h2>
+      <div class="weekly" id="weeklyBars"></div>
+    </section>
+  </div>
+
+  <footer class="foot">
+    <button class="toggle" id="soundBtn" aria-pressed="true">
+      <span class="sound-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 5 L6 9 H3 v6 h3 l5 4 z" fill="currentColor" stroke="currentColor"/>
+          <path class="wave" d="M15.5 8.5 Q 18 12 15.5 15.5" opacity="0.9"/>
+          <path class="wave" d="M18.5 6 Q 22 12 18.5 18" opacity="0.6"/>
+          <line class="mute-slash" x1="14" y1="8" x2="21" y2="17" stroke-width="2"/>
+        </svg>
+      </span>
+      <span id="soundLabel">som ligado</span>
+      <span class="track" aria-hidden="true"></span>
+    </button>
+    <div class="keyboard-hint">
+      <span><kbd data-i18n="kbSpace">espaço</kbd> <span data-i18n="start">começar</span></span>
+      <span><kbd>n</kbd> <span data-i18n="skip">pular</span></span>
+      <span><kbd>r</kbd> <span data-i18n="reset">zerar</span></span>
+    </div>
+  </footer>
+</main>
+
+<div class="modal-backdrop" id="settingsModal" role="dialog" aria-labelledby="settingsTitle" aria-modal="true">
+  <div class="modal">
+    <button class="modal-close" id="modalClose" aria-label="close">×</button>
+    <h2 id="settingsTitle" data-i18n="settingsTitle">configurações</h2>
+
+    <div class="setting">
+      <div class="setting-label">
+        <span class="setting-title" data-i18n="settingsFocusTitle">duração do foco</span>
+        <span class="setting-hint" data-i18n="settingsFocusHint">quanto tempo você quer focar por sessão</span>
+      </div>
+      <div class="setting-control">
+        <input type="number" id="cfgFocus" min="1" max="90" value="25"/>
+        <span data-i18n="min">min</span>
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">
+        <span class="setting-title" data-i18n="settingsBreakTitle">pausa curta</span>
+        <span class="setting-hint" data-i18n="settingsBreakHint">para respirar entre os focos</span>
+      </div>
+      <div class="setting-control">
+        <input type="number" id="cfgBreak" min="1" max="30" value="5"/>
+        <span data-i18n="min">min</span>
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">
+        <span class="setting-title" data-i18n="settingsLongTitle">descanso longo</span>
+        <span class="setting-hint" data-i18n="settingsLongHint">a cada 4 focos completos</span>
+      </div>
+      <div class="setting-control">
+        <input type="number" id="cfgLong" min="5" max="60" value="15"/>
+        <span data-i18n="min">min</span>
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">
+        <span class="setting-title" data-i18n="settingsAutostartTitle">começar automaticamente</span>
+        <span class="setting-hint" data-i18n="settingsAutostartHint">emenda a próxima sessão sozinho</span>
+      </div>
+      <button class="switch" id="cfgAutostart" role="switch" aria-checked="false"></button>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">
+        <span class="setting-title" data-i18n="settingsNotifTitle">avisos do navegador</span>
+        <span class="setting-hint" data-i18n="settingsNotifHint">notificação quando a sessão termina</span>
+      </div>
+      <button class="switch" id="cfgNotifications" role="switch" aria-checked="false"></button>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">
+        <span class="setting-title" data-i18n="settingsSoundTitle">som ao terminar</span>
+        <span class="setting-hint" data-i18n="settingsSoundHint">o que a vaca faz ao acabar a sessão</span>
+      </div>
+      <div class="setting-control">
+        <select id="cfgSound">
+          <option value="bell" data-i18n="soundBell">sino de vaca</option>
+          <option value="moo" data-i18n="soundMoo">muuu</option>
+          <option value="custom" data-i18n="soundCustom">sua música</option>
+          <option value="silent" data-i18n="soundSilent">silêncio</option>
+        </select>
+        <button class="preview-sound" id="previewSound" aria-label="preview">▶</button>
+      </div>
+    </div>
+
+    <div class="setting" id="customAudioRow" hidden>
+      <div class="setting-label">
+        <span class="setting-title" data-i18n="settingsUploadTitle">seu áudio</span>
+        <span class="setting-hint" data-i18n="settingsUploadHint">mp3, wav, ogg (máx. 3 MB)</span>
+        <span class="audio-name" id="audioName"></span>
+      </div>
+      <div class="setting-control">
+        <input type="file" id="audioFile" accept="audio/*" hidden/>
+        <button class="upload-btn" id="uploadBtn" data-i18n="uploadBtn">escolher arquivo</button>
+        <button class="upload-preview" id="uploadPreview" hidden aria-label="preview">▶</button>
+        <button class="upload-remove" id="uploadRemove" hidden aria-label="remove">×</button>
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">
+        <span class="setting-title" data-i18n="settingsVolumeTitle">volume</span>
+        <span class="setting-hint" data-i18n="settingsVolumeHint">quão alto a vaca chama você</span>
+      </div>
+      <div class="setting-control">
+        <input type="range" id="cfgVolume" min="0" max="100" value="60"/>
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">
+        <span class="setting-title" data-i18n="settingsAmbientTitle">som de fundo no foco</span>
+        <span class="setting-hint" data-i18n="settingsAmbientHint">toca em loop durante as sessões de foco</span>
+      </div>
+      <div class="setting-control">
+        <select id="cfgAmbient">
+          <option value="none" data-i18n="ambientNone">nenhum</option>
+          <option value="rain" data-i18n="ambientRain">chuva</option>
+          <option value="cafe" data-i18n="ambientCafe">café</option>
+          <option value="forest" data-i18n="ambientForest">floresta</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">
+        <span class="setting-title" data-i18n="settingsAmbientVolumeTitle">volume do fundo</span>
+        <span class="setting-hint" data-i18n="settingsAmbientVolumeHint">o mais baixo que não incomoda</span>
+      </div>
+      <div class="setting-control">
+        <input type="range" id="cfgAmbientVolume" min="0" max="100" value="30"/>
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">
+        <span class="setting-title" data-i18n="settingsThemeTitle">tema do céu</span>
+        <span class="setting-hint" data-i18n="settingsThemeHint">segue a hora do dia por padrão</span>
+      </div>
+      <div class="setting-control">
+        <select id="cfgTheme">
+          <option value="auto" data-i18n="themeAuto">automático</option>
+          <option value="morning" data-i18n="themeMorning">manhã</option>
+          <option value="day" data-i18n="themeDay">dia</option>
+          <option value="evening" data-i18n="themeEvening">entardecer</option>
+          <option value="night" data-i18n="themeNight">noite</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">
+        <span class="setting-title" data-i18n="settingsLangTitle">idioma</span>
+        <span class="setting-hint" data-i18n="settingsLangHint">em qual língua a vaca fala com você</span>
+      </div>
+      <div class="setting-control">
+        <select id="cfgLang">
+          <option value="pt">português</option>
+          <option value="en">english</option>
+          <option value="uk">українська</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <div class="action-group">
+        <button class="action-btn" id="exportBtn" data-i18n="exportBtn">exportar</button>
+        <button class="action-btn" id="importBtn" data-i18n="importBtn">importar</button>
+        <input type="file" id="importFile" accept="application/json" hidden/>
+      </div>
+      <button class="danger" id="cfgReset" data-i18n="resetStats">apagar estatísticas</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ============================================================
+  // SERVICE WORKER
+  // ============================================================
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+
+  // ============================================================
+  // I18N
+  // ============================================================
+  const I18N = {
+    pt: {
+      focusedToday: 'focado hoje', dayStreak: 'na sequência',
+      day: (n) => n === 1 ? '1 dia' : `${n} dias`,
+      focus: 'foco', break: 'pausa', long: 'descanso longo',
+      modeCaption: {
+        focus: 'hora de focar',
+        break: 'pausa curta — respira',
+        long:  'descanso longo — vai deitar no capim'
+      },
+      moo: 'muuu',
+      mooStart: 'vamos!',
+      mooBreak: 'pausa!',
+      mooLong: 'zzz...',
+      mooDoneFocus: 'boa!',
+      mooDoneBreak: 'muuu',
+      mooDoneLong: 'acordei!',
+      start: 'começar', pause: 'pausar', resume: 'continuar',
+      skip: 'pular', reset: 'zerar',
+      tasksTitle: 'tarefas',
+      tasksEmpty: 'nada pra fazer. adicione uma coisa pra focar.',
+      tasksPlaceholder: 'ex.: terminar o rascunho do relatório',
+      tasksDone: (n) => `${n} feita${n > 1 ? 's' : ''}`,
+      tasksRemaining: (rem, tot) => `${rem} de ${tot}`,
+      noSessions: 'nenhuma sessão hoje ainda',
+      oneBottle: 'uma garrafa cheia — bom começo',
+      manyBottles: (n) => `${n} garrafas de leite hoje`,
+      soundOn: 'som ligado', soundOff: 'som desligado',
+      kbSpace: 'espaço',
+      settingsTitle: 'configurações',
+      settingsFocusTitle: 'duração do foco',
+      settingsFocusHint: 'quanto tempo você quer focar por sessão',
+      settingsBreakTitle: 'pausa curta',
+      settingsBreakHint: 'para respirar entre os focos',
+      settingsLongTitle: 'descanso longo',
+      settingsLongHint: 'a cada 4 focos completos',
+      settingsAutostartTitle: 'começar automaticamente',
+      settingsAutostartHint: 'emenda a próxima sessão sozinho',
+      settingsNotifTitle: 'avisos do navegador',
+      settingsNotifHint: 'notificação quando a sessão termina',
+      settingsSoundTitle: 'som ao terminar',
+      settingsSoundHint: 'o que a vaca faz ao acabar a sessão',
+      soundBell: 'sino de vaca', soundMoo: 'muuu',
+      soundCustom: 'sua música', soundSilent: 'silêncio',
+      settingsUploadTitle: 'seu áudio',
+      settingsUploadHint: 'mp3, wav, ogg (máx. 3 MB)',
+      uploadBtn: 'escolher arquivo',
+      settingsVolumeTitle: 'volume',
+      settingsVolumeHint: 'quão alto a vaca chama você',
+      settingsAmbientTitle: 'som de fundo no foco',
+      settingsAmbientHint: 'toca em loop durante as sessões de foco',
+      settingsAmbientVolumeTitle: 'volume do fundo',
+      settingsAmbientVolumeHint: 'o mais baixo que não incomoda',
+      ambientNone: 'nenhum', ambientRain: 'chuva',
+      ambientCafe: 'café', ambientForest: 'floresta',
+      settingsThemeTitle: 'tema do céu',
+      settingsThemeHint: 'segue a hora do dia por padrão',
+      themeAuto: 'automático', themeMorning: 'manhã', themeDay: 'dia',
+      themeEvening: 'entardecer', themeNight: 'noite',
+      settingsLangTitle: 'idioma',
+      settingsLangHint: 'em qual língua a vaca fala com você',
+      resetStats: 'apagar estatísticas',
+      exportBtn: 'exportar', importBtn: 'importar',
+      confirmReset: 'Apagar todas as estatísticas? A vaca vai esquecer sua sequência.',
+      audioTooLarge: 'Arquivo grande demais. Tenta algo abaixo de 3 MB.',
+      audioSaved: (name) => `salvo: ${name}`,
+      importSuccess: 'Tudo restaurado. A vaca se lembra de você.',
+      importFailed: 'Não consegui ler esse arquivo.',
+      min: 'min',
+      weeklyTitle: 'esta semana',
+      weeklyTotal: (h) => `${h} no total`,
+      weekdays: ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'],
+      completionQuestion: (task) => ['terminou ', task, '?'],
+      promptDone: 'sim, marcar feita', promptContinue: 'não, mais uma',
+      notifFocusDoneTitle: 'sessão de foco completa 🎉',
+      notifFocusDoneBody: 'hora da pausa — respira um pouco',
+      notifBreakDoneTitle: 'pausa acabou 🐄',
+      notifBreakDoneBody: 'a vaca tá te esperando pra focar de novo',
+      titleFlash: '⏰ completo! — moodoro',
+    },
+    en: {
+      focusedToday: 'focused today', dayStreak: 'day streak',
+      day: (n) => n === 1 ? '1 day' : `${n} days`,
+      focus: 'focus', break: 'break', long: 'long break',
+      modeCaption: {
+        focus: 'time to focus',
+        break: 'short break — take a breath',
+        long:  'long break — go lie in the grass'
+      },
+      moo: 'moooo',
+      mooStart: 'let\u2019s go!',
+      mooBreak: 'break!',
+      mooLong: 'zzz...',
+      mooDoneFocus: 'nice!',
+      mooDoneBreak: 'moooo',
+      mooDoneLong: 'awake!',
+      start: 'start', pause: 'pause', resume: 'resume',
+      skip: 'skip', reset: 'reset',
+      tasksTitle: 'tasks',
+      tasksEmpty: 'nothing to do. add something to focus on.',
+      tasksPlaceholder: 'e.g., finish the report draft',
+      tasksDone: (n) => `${n} done`,
+      tasksRemaining: (rem, tot) => `${rem} of ${tot}`,
+      noSessions: 'no sessions yet today',
+      oneBottle: 'one bottle full — good start',
+      manyBottles: (n) => `${n} bottles of milk today`,
+      soundOn: 'sound on', soundOff: 'sound off',
+      kbSpace: 'space',
+      settingsTitle: 'settings',
+      settingsFocusTitle: 'focus duration',
+      settingsFocusHint: 'how long you want to focus per session',
+      settingsBreakTitle: 'short break',
+      settingsBreakHint: 'to breathe between focuses',
+      settingsLongTitle: 'long break',
+      settingsLongHint: 'after every 4 focus sessions',
+      settingsAutostartTitle: 'auto-start next',
+      settingsAutostartHint: 'starts the next session on its own',
+      settingsNotifTitle: 'browser notifications',
+      settingsNotifHint: 'ping when a session ends',
+      settingsSoundTitle: 'sound at the end',
+      settingsSoundHint: 'what the cow does when the session ends',
+      soundBell: 'cowbell', soundMoo: 'moooo',
+      soundCustom: 'your audio', soundSilent: 'silence',
+      settingsUploadTitle: 'your audio',
+      settingsUploadHint: 'mp3, wav, ogg (max 3 MB)',
+      uploadBtn: 'choose file',
+      settingsVolumeTitle: 'volume',
+      settingsVolumeHint: 'how loudly the cow calls you',
+      settingsAmbientTitle: 'ambient sound during focus',
+      settingsAmbientHint: 'loops through focus sessions',
+      settingsAmbientVolumeTitle: 'ambient volume',
+      settingsAmbientVolumeHint: 'the lowest that stays comfortable',
+      ambientNone: 'none', ambientRain: 'rain',
+      ambientCafe: 'café', ambientForest: 'forest',
+      settingsThemeTitle: 'sky theme',
+      settingsThemeHint: 'follows time of day by default',
+      themeAuto: 'auto', themeMorning: 'morning', themeDay: 'day',
+      themeEvening: 'evening', themeNight: 'night',
+      settingsLangTitle: 'language',
+      settingsLangHint: 'which language the cow speaks with you',
+      resetStats: 'erase stats',
+      exportBtn: 'export', importBtn: 'import',
+      confirmReset: 'Erase all stats? The cow will forget your streak.',
+      audioTooLarge: 'File too large. Try something under 3 MB.',
+      audioSaved: (name) => `saved: ${name}`,
+      importSuccess: 'All restored. The cow remembers you.',
+      importFailed: 'Could not read that file.',
+      min: 'min',
+      weeklyTitle: 'this week',
+      weeklyTotal: (h) => `${h} total`,
+      weekdays: ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
+      completionQuestion: (task) => ['finished ', task, '?'],
+      promptDone: 'yes, mark done', promptContinue: 'no, one more',
+      notifFocusDoneTitle: 'focus session complete 🎉',
+      notifFocusDoneBody: 'time to take a breath',
+      notifBreakDoneTitle: 'break is over 🐄',
+      notifBreakDoneBody: 'the cow is waiting for another focus',
+      titleFlash: '⏰ done! — moodoro',
+    },
+    uk: {
+      focusedToday: 'зосереджено сьогодні', dayStreak: 'поспіль',
+      day: (n) => {
+        const m10 = n % 10, m100 = n % 100;
+        if (m10 === 1 && m100 !== 11) return `${n} день`;
+        if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return `${n} дні`;
+        return `${n} днів`;
+      },
+      focus: 'фокус', break: 'перерва', long: 'довга перерва',
+      modeCaption: {
+        focus: 'час зосередитися',
+        break: 'коротка перерва — переведи подих',
+        long:  'довгий відпочинок — приляж на траву'
+      },
+      moo: 'мууу',
+      mooStart: 'вперед!',
+      mooBreak: 'пауза!',
+      mooLong: 'zzz...',
+      mooDoneFocus: 'молодець!',
+      mooDoneBreak: 'мууу',
+      mooDoneLong: 'прокинулась!',
+      start: 'почати', pause: 'пауза', resume: 'продовжити',
+      skip: 'пропустити', reset: 'скинути',
+      tasksTitle: 'завдання',
+      tasksEmpty: 'нічого немає. додай щось, на чому зосередитись.',
+      tasksPlaceholder: 'напр.: закінчити чернетку звіту',
+      tasksDone: (n) => `${n} виконано`,
+      tasksRemaining: (rem, tot) => `${rem} з ${tot}`,
+      noSessions: 'жодної сесії сьогодні',
+      oneBottle: 'одна пляшка повна — гарний початок',
+      manyBottles: (n) => {
+        const m10 = n % 10, m100 = n % 100;
+        let w;
+        if (m10 === 1 && m100 !== 11) w = 'пляшка молока';
+        else if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) w = 'пляшки молока';
+        else w = 'пляшок молока';
+        return `${n} ${w} сьогодні`;
+      },
+      soundOn: 'звук увімкнено', soundOff: 'звук вимкнено',
+      kbSpace: 'пробіл',
+      settingsTitle: 'налаштування',
+      settingsFocusTitle: 'тривалість фокусу',
+      settingsFocusHint: 'скільки хвилин зосереджуватись за сесію',
+      settingsBreakTitle: 'коротка перерва',
+      settingsBreakHint: 'щоб перевести подих між фокусами',
+      settingsLongTitle: 'довга перерва',
+      settingsLongHint: 'після кожних 4 завершених фокусів',
+      settingsAutostartTitle: 'автозапуск',
+      settingsAutostartHint: 'наступна сесія починається сама',
+      settingsNotifTitle: 'сповіщення браузера',
+      settingsNotifHint: 'сповіщення, коли сесія завершується',
+      settingsSoundTitle: 'звук у кінці',
+      settingsSoundHint: 'що робить корова наприкінці сесії',
+      soundBell: 'коров’ячий дзвін', soundMoo: 'мууу',
+      soundCustom: 'своя музика', soundSilent: 'тиша',
+      settingsUploadTitle: 'ваше аудіо',
+      settingsUploadHint: 'mp3, wav, ogg (макс. 3 МБ)',
+      uploadBtn: 'обрати файл',
+      settingsVolumeTitle: 'гучність',
+      settingsVolumeHint: 'як голосно корова тебе кличе',
+      settingsAmbientTitle: 'фоновий звук під час фокусу',
+      settingsAmbientHint: 'звучить у циклі протягом сесій фокусу',
+      settingsAmbientVolumeTitle: 'гучність фону',
+      settingsAmbientVolumeHint: 'найтихіше, що ще комфортно',
+      ambientNone: 'без звуку', ambientRain: 'дощ',
+      ambientCafe: 'кав’ярня', ambientForest: 'ліс',
+      settingsThemeTitle: 'тема неба',
+      settingsThemeHint: 'за замовчуванням стежить за часом доби',
+      themeAuto: 'автоматично', themeMorning: 'ранок', themeDay: 'день',
+      themeEvening: 'вечір', themeNight: 'ніч',
+      settingsLangTitle: 'мова',
+      settingsLangHint: 'якою мовою корова говорить з тобою',
+      resetStats: 'стерти статистику',
+      exportBtn: 'експорт', importBtn: 'імпорт',
+      confirmReset: 'Стерти всю статистику? Корова забуде твою серію.',
+      audioTooLarge: 'Файл завеликий. Спробуй менше 3 МБ.',
+      audioSaved: (name) => `завантажено: ${name}`,
+      importSuccess: 'Все відновлено. Корова тебе пам’ятає.',
+      importFailed: 'Не вдалося прочитати файл.',
+      min: 'хв',
+      weeklyTitle: 'цього тижня',
+      weeklyTotal: (h) => `всього ${h}`,
+      weekdays: ['нд', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'],
+      completionQuestion: (task) => ['завершив ', task, '?'],
+      promptDone: 'так, познач як виконане', promptContinue: 'ні, ще одна',
+      notifFocusDoneTitle: 'сесію фокусу завершено 🎉',
+      notifFocusDoneBody: 'час перевести подих',
+      notifBreakDoneTitle: 'перерва скінчилася 🐄',
+      notifBreakDoneBody: 'корова чекає ще на один фокус',
+      titleFlash: '⏰ готово! — moodoro',
+    },
+  };
+
+  let lang = 'pt';
+  function t(key, ...args) {
+    const dict = I18N[lang] || I18N.pt;
+    const parts = key.split('.');
+    let v = dict;
+    for (const p of parts) v = v && v[p];
+    if (typeof v === 'function') return v(...args);
+    return v !== undefined ? v : key;
+  }
+  function applyLang() {
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      const val = t(key);
+      if (typeof val === 'string') el.textContent = val;
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      el.setAttribute('placeholder', t(el.getAttribute('data-i18n-placeholder')));
+    });
+    document.querySelectorAll('.lang-chip button').forEach(b => {
+      b.setAttribute('aria-selected', b.dataset.lang === lang ? 'true' : 'false');
+    });
+    document.getElementById('mooBubble').textContent = t('moo');
+    render(); renderStats(); renderTasks(); renderBottles();
+    renderWeeklyBars(); renderActiveTaskBanner();
+  }
+
+  // ============================================================
+  // STORAGE
+  // ============================================================
+  const memStore = {};
+  const storage = {
+    get(k, fallback) {
+      try {
+        const v = localStorage.getItem(k);
+        return v === null ? fallback : JSON.parse(v);
+      } catch { return k in memStore ? memStore[k] : fallback; }
+    },
+    set(k, v) {
+      try { localStorage.setItem(k, JSON.stringify(v)); return true; }
+      catch { memStore[k] = v; return false; }
+    }
+  };
+
+  // ============================================================
+  // STATE
+  // ============================================================
+  const SESSIONS_UNTIL_LONG = 4;
+  const TODAY = new Date().toISOString().slice(0,10);
+  const settings = Object.assign({
+    focus: 25, break: 5, long: 15,
+    autostart: false, notifications: false,
+    sound: 'bell', volume: 60,
+    ambient: 'none', ambientVolume: 30,
+    theme: 'auto', lang: 'pt',
+  }, storage.get('moodoro:settings', {}));
+  const stats = Object.assign({
+    focusMinutes: {}, lastFocusDate: null, streak: 0, totalSessions: 0,
+  }, storage.get('moodoro:stats', {}));
+  let tasks = storage.get('moodoro:tasks', []);
+  if (!Array.isArray(tasks)) tasks = [];
+  // Migrate: ensure each task has an id and pomodoros
+  tasks.forEach(task => {
+    if (!task.id) task.id = 'tsk_' + Math.random().toString(36).slice(2, 10);
+    if (typeof task.pomodoros !== 'number') task.pomodoros = 0;
+  });
+  let activeTaskId = null;
+  let currentMode = 'focus';
+  let remaining = settings.focus * 60;
+  let running = false;
+  let endTime = 0;
+  let intervalId = null;
+  let audioCtx = null;
+  let previewAudio = null;
+  let completedFocus = 0;
+  let titleFlashInterval = null;
+  const originalTitle = 'moodoro';
+
+  lang = settings.lang || 'pt';
+
+  // ============================================================
+  // ELEMENTS
+  // ============================================================
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => document.querySelectorAll(s);
+  const bodyEl = document.body;
+  const minsEl = $('#mins'), secsEl = $('#secs');
+  const modeCaption = $('#modeCaption');
+  const playBtn = $('#playBtn'), skipBtn = $('#skipBtn'), resetBtn = $('#resetBtn');
+  const soundBtn = $('#soundBtn'), soundLabel = $('#soundLabel');
+  const settingsBtn = $('#settingsBtn');
+  const modal = $('#settingsModal'), modalClose = $('#modalClose');
+  const bottlesEl = $('#bottles'), progressLabel = $('#progressLabel');
+  const mooBubbleEl = $('#mooBubble');
+  const modeTabs = $$('.mode-tab');
+  const statFocus = $('#statFocus'), statStreak = $('#statStreak');
+  const taskListEl = $('#taskList'), taskEmpty = $('#taskEmpty');
+  const taskAdd = $('#taskAdd'), taskInput = $('#taskInput'), taskMeta = $('#taskMeta');
+  const cfgFocus = $('#cfgFocus'), cfgBreak = $('#cfgBreak'), cfgLong = $('#cfgLong');
+  const cfgAutostart = $('#cfgAutostart'), cfgNotifications = $('#cfgNotifications');
+  const cfgSound = $('#cfgSound'), cfgVolume = $('#cfgVolume');
+  const cfgAmbient = $('#cfgAmbient'), cfgAmbientVolume = $('#cfgAmbientVolume');
+  const cfgTheme = $('#cfgTheme'), cfgLang = $('#cfgLang');
+  const cfgReset = $('#cfgReset');
+  const langChip = $$('.lang-chip button');
+  const customAudioRow = $('#customAudioRow');
+  const audioFile = $('#audioFile'), uploadBtn = $('#uploadBtn');
+  const uploadPreview = $('#uploadPreview'), uploadRemove = $('#uploadRemove');
+  const audioName = $('#audioName');
+  const previewSoundBtn = $('#previewSound');
+  const activeTaskBanner = $('#activeTaskBanner');
+  const activeTaskText = $('#activeTaskText');
+  const activeTaskPomodoros = $('#activeTaskPomodoros');
+  const activeTaskClear = $('#activeTaskClear');
+  const completionPrompt = $('#completionPrompt');
+  const completionQuestion = $('#completionQuestion');
+  const promptDone = $('#promptDone'), promptContinue = $('#promptContinue');
+  const weeklyBars = $('#weeklyBars'), weeklyMeta = $('#weeklyMeta');
+  const exportBtn = $('#exportBtn'), importBtn = $('#importBtn'), importFile = $('#importFile');
+  const favicon = $('#favicon');
+
+  // ============================================================
+  // TIME
+  // ============================================================
+  function detectTime() {
+    if (settings.theme !== 'auto') return settings.theme;
+    const h = new Date().getHours();
+    if (h >= 5 && h < 10)  return 'morning';
+    if (h >= 10 && h < 17) return 'day';
+    if (h >= 17 && h < 20) return 'evening';
+    return 'night';
+  }
+  function applyTheme() { bodyEl.setAttribute('data-time', detectTime()); }
+
+  // ============================================================
+  // FAVICON + TITLE
+  // ============================================================
+  function updateFavicon(state) {
+    const colors = { idle:'F0B5B0', focus:'F0B5B0', break:'6B8E4E', long:'6B8E4E', done:'F5D06A' };
+    const c = colors[state] || colors.idle;
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='55' r='35' fill='%23FBF8F1' stroke='%231E1B18' stroke-width='4'/><ellipse cx='38' cy='50' rx='4' ry='6' fill='%231E1B18'/><ellipse cx='62' cy='50' rx='4' ry='6' fill='%231E1B18'/><ellipse cx='50' cy='72' rx='18' ry='12' fill='%23${c}' stroke='%231E1B18' stroke-width='3'/></svg>`;
+    favicon.href = `data:image/svg+xml;utf8,${svg}`;
+  }
+  function startTitleFlash() {
+    stopTitleFlash();
+    let flip = false;
+    titleFlashInterval = setInterval(() => {
+      flip = !flip;
+      document.title = flip ? t('titleFlash') : originalTitle;
+    }, 900);
+  }
+  function stopTitleFlash() {
+    if (titleFlashInterval) { clearInterval(titleFlashInterval); titleFlashInterval = null; }
+    render();
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      stopTitleFlash();
+      updateFavicon(running ? currentMode : 'idle');
+      if (running) tick();
+    }
+  });
+  window.addEventListener('focus', () => {
+    stopTitleFlash();
+    updateFavicon(running ? currentMode : 'idle');
+  });
+
+  // ============================================================
+  // NOTIFICATIONS
+  // ============================================================
+  function tryRequestNotifPermission(cb) {
+    if (!('Notification' in window)) { if (cb) cb(false); return; }
+    if (Notification.permission === 'granted') { if (cb) cb(true); return; }
+    if (Notification.permission === 'denied') { if (cb) cb(false); return; }
+    Notification.requestPermission().then(p => { if (cb) cb(p === 'granted'); });
+  }
+  function sendNotification() {
+    if (!settings.notifications) return;
+    if (!('Notification' in window)) return;
+    if (Notification.permission !== 'granted') return;
+    if (!document.hidden) return;
+    try {
+      const isFocus = currentMode === 'focus';
+      const n = new Notification(
+        isFocus ? t('notifFocusDoneTitle') : t('notifBreakDoneTitle'),
+        { body: isFocus ? t('notifFocusDoneBody') : t('notifBreakDoneBody'), silent: true }
+      );
+      n.onclick = () => { window.focus(); n.close(); };
+    } catch {}
+  }
+
+  // ============================================================
+  // AMBIENT AUDIO
+  // ============================================================
+  const ambient = {
+    ctx: null, master: null, source: null, filter: null,
+    currentType: null, volume: 30,
+    chirpTimeout: null, noiseBuffer: null,
+    ensureBuffer(ctx) {
+      if (this.noiseBuffer) return this.noiseBuffer;
+      const dur = 4;
+      const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+      for (let i = 0; i < data.length; i++) {
+        const w = Math.random() * 2 - 1;
+        b0 = 0.99886*b0 + w*0.0555179;
+        b1 = 0.99332*b1 + w*0.0750759;
+        b2 = 0.96900*b2 + w*0.1538520;
+        b3 = 0.86650*b3 + w*0.3104856;
+        b4 = 0.55000*b4 + w*0.5329522;
+        b5 = -0.7616*b5 - w*0.0168980;
+        data[i] = (b0+b1+b2+b3+b4+b5+b6+w*0.5362) * 0.11;
+        b6 = w*0.115926;
+      }
+      this.noiseBuffer = buf;
+      return buf;
+    },
+    start(type, ctx, volume) {
+      this.stop();
+      if (!type || type === 'none' || !ctx) return;
+      this.ctx = ctx;
+      this.currentType = type;
+      this.volume = volume;
+      const buf = this.ensureBuffer(ctx);
+      this.source = ctx.createBufferSource();
+      this.source.buffer = buf;
+      this.source.loop = true;
+      this.filter = ctx.createBiquadFilter();
+      this.master = ctx.createGain();
+      this.master.gain.value = (volume / 100) * 0.35;
+      if (type === 'rain') {
+        this.filter.type = 'lowpass';
+        this.filter.frequency.value = 3200;
+        this.filter.Q.value = 0.7;
+      } else if (type === 'cafe') {
+        this.filter.type = 'lowpass';
+        this.filter.frequency.value = 550;
+        this.filter.Q.value = 0.5;
+      } else if (type === 'forest') {
+        this.filter.type = 'bandpass';
+        this.filter.frequency.value = 900;
+        this.filter.Q.value = 0.6;
+        this.scheduleChirp();
+      }
+      this.source.connect(this.filter).connect(this.master).connect(ctx.destination);
+      this.source.start();
+    },
+    scheduleChirp() {
+      if (this.currentType !== 'forest' || !this.ctx || !this.master) return;
+      const delay = 3000 + Math.random() * 6000;
+      this.chirpTimeout = setTimeout(() => {
+        this.playChirp();
+        this.scheduleChirp();
+      }, delay);
+    },
+    playChirp() {
+      if (!this.ctx || !this.master) return;
+      const ctx = this.ctx, now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine';
+      const startFreq = 2500 + Math.random() * 1500;
+      const endFreq = startFreq * (0.6 + Math.random() * 0.3);
+      osc.frequency.setValueAtTime(startFreq, now);
+      osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.15);
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(0.05 * (this.volume / 100), now + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      osc.connect(g).connect(this.master);
+      osc.start(now); osc.stop(now + 0.3);
+    },
+    stop() {
+      if (this.source) { try { this.source.stop(); } catch {} this.source = null; }
+      if (this.chirpTimeout) { clearTimeout(this.chirpTimeout); this.chirpTimeout = null; }
+      this.currentType = null; this.master = null; this.filter = null;
+    },
+    setVolume(v) {
+      this.volume = v;
+      if (this.master) this.master.gain.value = (v / 100) * 0.35;
+    },
+  };
+
+  // ============================================================
+  // RENDER
+  // ============================================================
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function fmtDuration(mins) {
+    const minLabel = t('min');
+    if (mins < 60) return `${mins} ${minLabel}`;
+    const h = Math.floor(mins / 60), m = mins % 60;
+    const hSuffix = lang === 'uk' ? ' год' : 'h';
+    return m === 0 ? `${h}${hSuffix}` : `${h}${hSuffix} ${m} ${minLabel}`;
+  }
+  function render() {
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    minsEl.textContent = pad(m);
+    secsEl.textContent = pad(s);
+    const caption = t(`modeCaption.${currentMode}`);
+    modeCaption.textContent = caption;
+    if (!titleFlashInterval) {
+      document.title = `${pad(m)}:${pad(s)} · ${caption} — moodoro`;
+    }
+    const isFresh = remaining === settings[currentMode] * 60;
+    playBtn.textContent = running ? t('pause') : (isFresh ? t('start') : t('resume'));
+    bodyEl.classList.toggle('running', running);
+  }
+  function renderModeTabs() {
+    modeTabs.forEach(tab => {
+      tab.setAttribute('aria-selected', tab.dataset.mode === currentMode ? 'true' : 'false');
+      const slot = tab.querySelector('[data-slot]');
+      if (slot) slot.textContent = settings[slot.dataset.slot];
+    });
+  }
+  function renderStats() {
+    const todayMin = stats.focusMinutes[TODAY] || 0;
+    statFocus.textContent = fmtDuration(todayMin);
+    statStreak.textContent = t('day', stats.streak || 0);
+  }
+  function renderBottles() {
+    const done = completedFocus;
+    const total = Math.max(SESSIONS_UNTIL_LONG, Math.ceil(done / SESSIONS_UNTIL_LONG) * SESSIONS_UNTIL_LONG);
+    bottlesEl.innerHTML = '';
+    for (let i = 0; i < total; i++) bottlesEl.appendChild(makeBottle(i < done));
+    if (done === 0)      progressLabel.textContent = t('noSessions');
+    else if (done === 1) progressLabel.textContent = t('oneBottle');
+    else                 progressLabel.textContent = t('manyBottles', done);
+  }
+  function makeBottle(filled) {
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('class', 'bottle');
+    svg.setAttribute('viewBox', '0 0 28 44');
+    svg.setAttribute('aria-hidden', 'true');
+    const body = document.createElementNS(ns, 'path');
+    body.setAttribute('d', 'M 9 4 L 9 11 Q 3 13 3 19 L 3 38 Q 3 42 8 42 L 20 42 Q 25 42 25 38 L 25 19 Q 25 13 19 11 L 19 4 Z');
+    body.setAttribute('fill', filled ? 'var(--milk)' : 'transparent');
+    body.setAttribute('stroke', 'var(--spot)');
+    body.setAttribute('stroke-width', '2');
+    body.setAttribute('stroke-linejoin', 'round');
+    if (filled) {
+      const milk = document.createElementNS(ns, 'rect');
+      milk.setAttribute('x', '5'); milk.setAttribute('y', '19');
+      milk.setAttribute('width', '18'); milk.setAttribute('height', '22');
+      milk.setAttribute('rx', '3'); milk.setAttribute('fill', 'var(--milk-2)');
+      svg.appendChild(milk);
+    }
+    svg.appendChild(body);
+    const cap = document.createElementNS(ns, 'rect');
+    cap.setAttribute('x', '8'); cap.setAttribute('y', '2');
+    cap.setAttribute('width', '12'); cap.setAttribute('height', '4');
+    cap.setAttribute('rx', '1.5');
+    cap.setAttribute('fill', filled ? 'var(--pink-deep)' : 'var(--milk-3)');
+    cap.setAttribute('stroke', 'var(--spot)'); cap.setAttribute('stroke-width', '2');
+    svg.appendChild(cap);
+    return svg;
+  }
+
+  // ============================================================
+  // WEEKLY BARS
+  // ============================================================
+  function renderWeeklyBars() {
+    weeklyBars.innerHTML = '';
+    const today = new Date();
+    const days = [];
+    let totalMin = 0;
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const iso = d.toISOString().slice(0, 10);
+      const mins = stats.focusMinutes[iso] || 0;
+      totalMin += mins;
+      days.push({ date: iso, dow: d.getDay(), mins, isToday: iso === TODAY });
+    }
+    const maxMin = Math.max(60, ...days.map(d => d.mins));
+    const weekdays = t('weekdays');
+    days.forEach(d => {
+      const col = document.createElement('div');
+      col.className = 'week-col';
+      if (d.isToday) col.classList.add('today');
+      if (d.mins === 0) col.classList.add('empty');
+      const val = document.createElement('div');
+      val.className = 'week-value';
+      val.textContent = d.mins > 0 ? d.mins : '';
+      const bar = document.createElement('div');
+      bar.className = 'week-bar';
+      const h = Math.max(4, Math.round((d.mins / maxMin) * 60));
+      bar.style.height = `${h}px`;
+      bar.setAttribute('title', `${d.mins} ${t('min')}`);
+      const label = document.createElement('div');
+      label.className = 'week-label';
+      label.textContent = weekdays[d.dow];
+      col.append(val, bar, label);
+      weeklyBars.appendChild(col);
+    });
+    weeklyMeta.textContent = totalMin > 0 ? t('weeklyTotal', fmtDuration(totalMin)) : '';
+  }
+
+  // ============================================================
+  // TASKS
+  // ============================================================
+  function saveTasks() { storage.set('moodoro:tasks', tasks); }
+  function renderTasks() {
+    taskListEl.innerHTML = '';
+    if (tasks.length === 0) {
+      taskEmpty.style.display = 'block';
+      taskMeta.textContent = '';
+    } else {
+      taskEmpty.style.display = 'none';
+      const rem = tasks.filter(x => !x.done).length;
+      const total = tasks.length;
+      taskMeta.textContent = rem === 0 ? t('tasksDone', total) : t('tasksRemaining', rem, total);
+    }
+    tasks.forEach(task => {
+      const li = document.createElement('li');
+      li.className = 'task-item' + (task.done ? ' done' : '') + (task.id === activeTaskId ? ' active' : '');
+      const check = document.createElement('input');
+      check.type = 'checkbox'; check.className = 'task-check';
+      check.checked = task.done;
+      check.addEventListener('change', () => {
+        task.done = check.checked;
+        if (task.done && task.id === activeTaskId) { activeTaskId = null; renderActiveTaskBanner(); }
+        saveTasks(); renderTasks();
+      });
+      const textSpan = document.createElement('span');
+      textSpan.className = 'task-text';
+      textSpan.textContent = task.text;
+      const pomos = document.createElement('span');
+      pomos.className = 'task-pomodoros';
+      pomos.setAttribute('data-count', String(task.pomodoros || 0));
+      pomos.textContent = `🍅 ${task.pomodoros || 0}`;
+      const focusBtn = document.createElement('button');
+      focusBtn.className = 'task-focus'; focusBtn.type = 'button';
+      focusBtn.setAttribute('aria-label', 'focus on this task');
+      focusBtn.textContent = task.id === activeTaskId ? '★' : '☆';
+      focusBtn.addEventListener('click', () => {
+        activeTaskId = (task.id === activeTaskId || task.done) ? null : task.id;
+        renderTasks(); renderActiveTaskBanner();
+      });
+      const del = document.createElement('button');
+      del.className = 'task-delete'; del.type = 'button';
+      del.setAttribute('aria-label', 'remove task');
+      del.textContent = '×';
+      del.addEventListener('click', () => {
+        if (task.id === activeTaskId) { activeTaskId = null; renderActiveTaskBanner(); }
+        tasks = tasks.filter(x => x.id !== task.id);
+        saveTasks(); renderTasks();
+      });
+      li.append(check, textSpan, pomos, focusBtn, del);
+      taskListEl.appendChild(li);
+    });
+  }
+  taskAdd.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = taskInput.value.trim();
+    if (!text) return;
+    tasks.push({
+      id: 'tsk_' + Math.random().toString(36).slice(2, 10),
+      text, done: false, pomodoros: 0, at: Date.now()
+    });
+    taskInput.value = '';
+    saveTasks(); renderTasks();
+  });
+  function renderActiveTaskBanner() {
+    const active = tasks.find(x => x.id === activeTaskId);
+    if (active && !active.done) {
+      activeTaskBanner.hidden = false;
+      activeTaskText.textContent = active.text;
+      activeTaskPomodoros.textContent = `🍅 ${active.pomodoros || 0}`;
+    } else {
+      activeTaskBanner.hidden = true;
+      if (active && active.done) activeTaskId = null;
+    }
+  }
+  activeTaskClear.addEventListener('click', () => {
+    activeTaskId = null;
+    renderTasks(); renderActiveTaskBanner();
+  });
+
+  // ============================================================
+  // COMPLETION PROMPT
+  // ============================================================
+  let promptTimeout = null;
+  function showCompletionPrompt(taskId) {
+    const task = tasks.find(x => x.id === taskId);
+    if (!task) return;
+    const parts = t('completionQuestion', task.text);
+    completionQuestion.innerHTML = '';
+    if (Array.isArray(parts)) {
+      const [pre, name, post] = parts;
+      completionQuestion.append(document.createTextNode(pre));
+      const strong = document.createElement('strong');
+      strong.textContent = name;
+      completionQuestion.append(strong);
+      completionQuestion.append(document.createTextNode(post));
+    } else {
+      completionQuestion.textContent = String(parts);
+    }
+    completionPrompt.hidden = false;
+    if (promptTimeout) clearTimeout(promptTimeout);
+    promptTimeout = setTimeout(dismissPrompt, 20000);
+    promptDone.onclick = () => {
+      task.done = true; task.pomodoros = (task.pomodoros || 0) + 0; // already incremented earlier
+      activeTaskId = null;
+      saveTasks(); renderTasks(); renderActiveTaskBanner();
+      dismissPrompt();
+    };
+    promptContinue.onclick = dismissPrompt;
+  }
+  function dismissPrompt() {
+    if (promptTimeout) { clearTimeout(promptTimeout); promptTimeout = null; }
+    completionPrompt.hidden = true;
+  }
+
+  // ============================================================
+  // TIMER (endTime-based, resilient to throttling)
+  // ============================================================
+  function tick() {
+    if (!running) return;
+    remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+    if (remaining <= 0) { complete(); return; }
+    render();
+  }
+  function start() {
+    if (running) return;
+    running = true;
+    endTime = Date.now() + remaining * 1000;
+    intervalId = setInterval(tick, 500);
+    ensureAudio();
+    if (currentMode === 'focus') {
+      ambient.start(settings.ambient, audioCtx, settings.ambientVolume);
+    }
+    if (settings.notifications) tryRequestNotifPermission();
+    updateFavicon(currentMode);
+    triggerStartReaction();
+    render();
+  }
+  function triggerStartReaction() {
+    // Startle bounce + ear perk, plus a mode-specific bubble.
+    bodyEl.classList.remove('starting'); // reset in case rapid restart
+    void bodyEl.offsetWidth;              // force reflow to replay animation
+    bodyEl.classList.add('starting');
+    setTimeout(() => bodyEl.classList.remove('starting'), 1200);
+    const key = currentMode === 'focus' ? 'mooStart'
+              : currentMode === 'break' ? 'mooBreak'
+              : 'mooLong';
+    showMoo(t(key));
+  }
+  function pause() {
+    if (!running) return;
+    running = false;
+    remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+    clearInterval(intervalId); intervalId = null;
+    ambient.stop();
+    updateFavicon('idle');
+    render();
+  }
+  function toggle() { running ? pause() : start(); }
+  function reset() {
+    pause();
+    remaining = settings[currentMode] * 60;
+    render();
+  }
+  function skip() {
+    pause();
+    if (currentMode === 'focus') {
+      const next = (completedFocus > 0 && completedFocus % SESSIONS_UNTIL_LONG === 0) ? 'long' : 'break';
+      setMode(next);
+    } else {
+      setMode('focus');
+    }
+  }
+  function setMode(mode, opts = {}) {
+    if (!(mode in { focus:1, break:1, long:1 })) return;
+    pause();
+    currentMode = mode;
+    remaining = settings[mode] * 60;
+    bodyEl.classList.remove('mode-focus', 'mode-break', 'mode-long');
+    bodyEl.classList.add('mode-' + mode);
+    renderModeTabs(); render();
+    updateFavicon('idle');
+    if (opts.autostart) start();
+  }
+  function complete() {
+    const wasFocus = currentMode === 'focus';
+    const wasBreak = currentMode === 'break';
+    const activeId = activeTaskId;
+    pause();
+    playChime();
+    showMoo(t(wasFocus ? 'mooDoneFocus' : wasBreak ? 'mooDoneBreak' : 'mooDoneLong'));
+    sendNotification();
+    if (document.hidden) startTitleFlash();
+    updateFavicon('done');
+    if (wasFocus) {
+      completedFocus += 1;
+      recordFocusSession(settings.focus);
+      renderBottles();
+      renderWeeklyBars();
+      const bs = bottlesEl.querySelectorAll('.bottle');
+      if (bs[completedFocus - 1]) bs[completedFocus - 1].classList.add('just-filled');
+      celebrate();
+      if (activeId) {
+        const task = tasks.find(x => x.id === activeId);
+        if (task && !task.done) {
+          task.pomodoros = (task.pomodoros || 0) + 1;
+          saveTasks(); renderTasks(); renderActiveTaskBanner();
+        }
+      }
+      const next = (completedFocus % SESSIONS_UNTIL_LONG === 0) ? 'long' : 'break';
+      setTimeout(() => {
+        setMode(next, { autostart: settings.autostart });
+        if (activeId) showCompletionPrompt(activeId);
+      }, 1800);
+    } else {
+      setTimeout(() => setMode('focus', { autostart: settings.autostart }), 1400);
+    }
+  }
+  function recordFocusSession(minutes) {
+    stats.focusMinutes[TODAY] = (stats.focusMinutes[TODAY] || 0) + minutes;
+    stats.totalSessions = (stats.totalSessions || 0) + 1;
+    if (stats.lastFocusDate !== TODAY) {
+      if (isYesterday(stats.lastFocusDate)) stats.streak = (stats.streak || 0) + 1;
+      else stats.streak = 1;
+      stats.lastFocusDate = TODAY;
+    }
+    storage.set('moodoro:stats', stats);
+    renderStats();
+  }
+  function isYesterday(dateStr) {
+    if (!dateStr) return false;
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    return dateStr === y.toISOString().slice(0, 10);
+  }
+  function showMoo(text) {
+    if (text && mooBubbleEl) mooBubbleEl.textContent = text;
+    bodyEl.classList.add('mooing');
+    setTimeout(() => bodyEl.classList.remove('mooing'), 2800);
+  }
+  function celebrate() {
+    bodyEl.classList.add('celebrating');
+    setTimeout(() => bodyEl.classList.remove('celebrating'), 2000);
+  }
+
+  // ============================================================
+  // AUDIO
+  // ============================================================
+  function ensureAudio() {
+    if (audioCtx) return;
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch { audioCtx = null; }
+  }
+  function playChime() {
+    if (settings.sound === 'silent') return;
+    if (settings.sound === 'custom') { if (playCustomAudio()) return; }
+    ensureAudio();
+    if (!audioCtx) return;
+    if (settings.sound === 'moo') return playMoo();
+    playCowbell();
+  }
+  function playCowbell() {
+    const now = audioCtx.currentTime;
+    const vol = (settings.volume / 100) * 0.35;
+    const master = audioCtx.createGain();
+    master.gain.setValueAtTime(0, now);
+    master.gain.linearRampToValueAtTime(vol, now + 0.005);
+    master.gain.exponentialRampToValueAtTime(0.0001, now + 1.4);
+    master.connect(audioCtx.destination);
+    const filt = audioCtx.createBiquadFilter();
+    filt.type = 'bandpass'; filt.frequency.value = 800; filt.Q.value = 2;
+    filt.connect(master);
+    [
+      { freq: 540, gain: 0.6, wave: 'square' },
+      { freq: 800, gain: 0.5, wave: 'square' },
+      { freq: 1200, gain: 0.25, wave: 'triangle' },
+    ].forEach(p => {
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = p.wave; osc.frequency.value = p.freq;
+      g.gain.setValueAtTime(p.gain, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
+      osc.connect(g).connect(filt);
+      osc.start(now); osc.stop(now + 1.2);
+    });
+  }
+  function playMoo() {
+    const now = audioCtx.currentTime;
+    const vol = (settings.volume / 100) * 0.45;
+    const osc = audioCtx.createOscillator();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(210, now);
+    osc.frequency.linearRampToValueAtTime(195, now + 0.4);
+    osc.frequency.linearRampToValueAtTime(190, now + 1.0);
+    osc.frequency.linearRampToValueAtTime(150, now + 1.5);
+    const lfo = audioCtx.createOscillator();
+    lfo.frequency.value = 5;
+    const lfoGain = audioCtx.createGain();
+    lfoGain.gain.value = 5;
+    lfo.connect(lfoGain).connect(osc.frequency);
+    const f1 = audioCtx.createBiquadFilter();
+    f1.type = 'bandpass'; f1.frequency.value = 700; f1.Q.value = 6;
+    const f2 = audioCtx.createBiquadFilter();
+    f2.type = 'bandpass'; f2.frequency.value = 1150; f2.Q.value = 5;
+    const lp = audioCtx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 2200; lp.Q.value = 0.5;
+    const env = audioCtx.createGain();
+    env.gain.setValueAtTime(0, now);
+    env.gain.linearRampToValueAtTime(vol * 0.9, now + 0.18);
+    env.gain.setValueAtTime(vol * 0.9, now + 0.9);
+    env.gain.linearRampToValueAtTime(vol * 0.5, now + 1.2);
+    env.gain.exponentialRampToValueAtTime(0.001, now + 1.7);
+    osc.connect(f1);
+    const mix = audioCtx.createGain();
+    mix.gain.value = 0.5;
+    f1.connect(mix);
+    const branch2 = audioCtx.createGain();
+    branch2.gain.value = 0.6;
+    osc.connect(f2);
+    f2.connect(branch2).connect(mix);
+    mix.connect(lp).connect(env).connect(audioCtx.destination);
+    osc.start(now); osc.stop(now + 1.8);
+    lfo.start(now); lfo.stop(now + 1.8);
+  }
+  function playCustomAudio() {
+    const custom = storage.get('moodoro:custom-audio', null);
+    if (!custom || !custom.dataUrl) return false;
+    try {
+      if (previewAudio) previewAudio.pause();
+      previewAudio = new Audio(custom.dataUrl);
+      previewAudio.volume = settings.volume / 100;
+      previewAudio.play().catch(() => {});
+      setTimeout(() => { try { previewAudio && previewAudio.pause(); } catch {} }, 20000);
+      return true;
+    } catch { return false; }
+  }
+  function stopPreview() {
+    if (previewAudio) { try { previewAudio.pause(); previewAudio.currentTime = 0; } catch {} }
+  }
+
+  // ============================================================
+  // CUSTOM AUDIO UPLOAD
+  // ============================================================
+  function refreshCustomAudioUI() {
+    const custom = storage.get('moodoro:custom-audio', null);
+    if (custom && custom.name) {
+      audioName.textContent = t('audioSaved', custom.name);
+      uploadPreview.hidden = false;
+      uploadRemove.hidden = false;
+    } else {
+      audioName.textContent = '';
+      uploadPreview.hidden = true;
+      uploadRemove.hidden = true;
+    }
+    customAudioRow.hidden = settings.sound !== 'custom';
+  }
+  uploadBtn.addEventListener('click', () => audioFile.click());
+  audioFile.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('audio/')) { alert(t('audioTooLarge')); return; }
+    if (file.size > 3 * 1024 * 1024) { alert(t('audioTooLarge')); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const ok = storage.set('moodoro:custom-audio', { name: file.name, dataUrl: ev.target.result });
+      if (!ok) { alert(t('audioTooLarge')); return; }
+      refreshCustomAudioUI();
+    };
+    reader.readAsDataURL(file);
+  });
+  uploadPreview.addEventListener('click', () => { ensureAudio(); playCustomAudio(); });
+  uploadRemove.addEventListener('click', () => {
+    stopPreview();
+    try { localStorage.removeItem('moodoro:custom-audio'); } catch {}
+    refreshCustomAudioUI();
+  });
+
+  // ============================================================
+  // PREVIEW SOUND
+  // ============================================================
+  previewSoundBtn.addEventListener('click', () => {
+    const type = cfgSound.value;
+    if (type === 'silent') return;
+    ensureAudio();
+    if (type === 'custom') { playCustomAudio(); return; }
+    if (!audioCtx) return;
+    if (type === 'moo') playMoo();
+    else playCowbell();
+  });
+
+  // ============================================================
+  // EXPORT / IMPORT
+  // ============================================================
+  exportBtn.addEventListener('click', () => {
+    const data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      settings, stats, tasks,
+      customAudio: storage.get('moodoro:custom-audio', null),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `moodoro-backup-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+  });
+  importBtn.addEventListener('click', () => importFile.click());
+  importFile.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!data || typeof data !== 'object') throw new Error('bad');
+        if (data.settings && typeof data.settings === 'object') Object.assign(settings, data.settings);
+        if (data.stats && typeof data.stats === 'object') Object.assign(stats, data.stats);
+        if (Array.isArray(data.tasks)) {
+          tasks = data.tasks;
+          tasks.forEach(task => {
+            if (!task.id) task.id = 'tsk_' + Math.random().toString(36).slice(2, 10);
+            if (typeof task.pomodoros !== 'number') task.pomodoros = 0;
+          });
+        }
+        if (data.customAudio) storage.set('moodoro:custom-audio', data.customAudio);
+        storage.set('moodoro:settings', settings);
+        storage.set('moodoro:stats', stats);
+        saveTasks();
+        lang = settings.lang || 'pt';
+        applyTheme(); applyLang();
+        alert(t('importSuccess'));
+      } catch { alert(t('importFailed')); }
+      importFile.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  // ============================================================
+  // SETTINGS MODAL
+  // ============================================================
+  function openSettings() {
+    cfgFocus.value = settings.focus;
+    cfgBreak.value = settings.break;
+    cfgLong.value  = settings.long;
+    cfgAutostart.setAttribute('aria-checked', settings.autostart ? 'true' : 'false');
+    cfgNotifications.setAttribute('aria-checked', settings.notifications ? 'true' : 'false');
+    cfgSound.value = settings.sound;
+    cfgVolume.value = settings.volume;
+    cfgAmbient.value = settings.ambient;
+    cfgAmbientVolume.value = settings.ambientVolume;
+    cfgTheme.value = settings.theme;
+    cfgLang.value = settings.lang;
+    refreshCustomAudioUI();
+    modal.classList.add('open');
+    setTimeout(() => modalClose.focus(), 100);
+  }
+  function closeSettings() {
+    saveSettingsFromUI();
+    stopPreview();
+    modal.classList.remove('open');
+    settingsBtn.focus();
+  }
+  function saveSettingsFromUI() {
+    const clamp = (el, min, max) => {
+      const n = parseInt(el.value, 10);
+      if (isNaN(n) || n < min) return min;
+      if (n > max) return max;
+      return n;
+    };
+    settings.focus = clamp(cfgFocus, 1, 90);
+    settings.break = clamp(cfgBreak, 1, 30);
+    settings.long  = clamp(cfgLong, 5, 60);
+    settings.autostart = cfgAutostart.getAttribute('aria-checked') === 'true';
+    const wasNotif = settings.notifications;
+    settings.notifications = cfgNotifications.getAttribute('aria-checked') === 'true';
+    settings.sound = cfgSound.value;
+    settings.volume = parseInt(cfgVolume.value, 10) || 60;
+    const wasAmbient = settings.ambient;
+    settings.ambient = cfgAmbient.value;
+    settings.ambientVolume = parseInt(cfgAmbientVolume.value, 10) || 30;
+    settings.theme = cfgTheme.value;
+    const prevLang = settings.lang;
+    settings.lang = cfgLang.value;
+    storage.set('moodoro:settings', settings);
+    applyTheme();
+    if (settings.lang !== prevLang) { lang = settings.lang; applyLang(); }
+    if (!running) remaining = settings[currentMode] * 60;
+    renderModeTabs(); render();
+    refreshCustomAudioUI();
+    // Sync running ambient
+    if (running && currentMode === 'focus') {
+      if (settings.ambient !== wasAmbient) {
+        ambient.start(settings.ambient, audioCtx, settings.ambientVolume);
+      } else {
+        ambient.setVolume(settings.ambientVolume);
+      }
+    }
+    // Ask for notification permission if just enabled
+    if (settings.notifications && !wasNotif) tryRequestNotifPermission();
+    // Sync sound toggle
+    if (settings.sound === 'silent') {
+      soundBtn.setAttribute('aria-pressed', 'false');
+      soundLabel.textContent = t('soundOff');
+    } else {
+      soundBtn.setAttribute('aria-pressed', 'true');
+      soundLabel.textContent = t('soundOn');
+    }
+  }
+  cfgAutostart.addEventListener('click', () => {
+    const on = cfgAutostart.getAttribute('aria-checked') === 'true';
+    cfgAutostart.setAttribute('aria-checked', on ? 'false' : 'true');
+  });
+  cfgNotifications.addEventListener('click', () => {
+    const on = cfgNotifications.getAttribute('aria-checked') === 'true';
+    cfgNotifications.setAttribute('aria-checked', on ? 'false' : 'true');
+    if (!on) tryRequestNotifPermission();
+  });
+  cfgReset.addEventListener('click', () => {
+    if (!confirm(t('confirmReset'))) return;
+    stats.focusMinutes = {}; stats.lastFocusDate = null;
+    stats.streak = 0; stats.totalSessions = 0;
+    storage.set('moodoro:stats', stats);
+    completedFocus = 0;
+    tasks.forEach(x => x.pomodoros = 0);
+    saveTasks();
+    renderStats(); renderBottles(); renderTasks(); renderWeeklyBars(); renderActiveTaskBanner();
+  });
+  settingsBtn.addEventListener('click', openSettings);
+  modalClose.addEventListener('click', closeSettings);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeSettings(); });
+  [cfgFocus, cfgBreak, cfgLong, cfgSound, cfgVolume, cfgAmbient, cfgTheme, cfgLang].forEach(el => {
+    el.addEventListener('change', saveSettingsFromUI);
+  });
+  cfgAmbientVolume.addEventListener('input', () => {
+    settings.ambientVolume = parseInt(cfgAmbientVolume.value, 10) || 30;
+    storage.set('moodoro:settings', settings);
+    ambient.setVolume(settings.ambientVolume);
+  });
+  cfgVolume.addEventListener('input', () => {
+    settings.volume = parseInt(cfgVolume.value, 10) || 60;
+    storage.set('moodoro:settings', settings);
+  });
+
+  langChip.forEach(btn => {
+    btn.addEventListener('click', () => {
+      lang = btn.dataset.lang;
+      settings.lang = lang;
+      storage.set('moodoro:settings', settings);
+      applyLang();
+    });
+  });
+
+  // ============================================================
+  // MAIN WIRING
+  // ============================================================
+  playBtn.addEventListener('click', toggle);
+  skipBtn.addEventListener('click', skip);
+  resetBtn.addEventListener('click', reset);
+  soundBtn.addEventListener('click', () => {
+    if (settings.sound === 'silent') {
+      settings.sound = 'bell';
+      soundBtn.setAttribute('aria-pressed', 'true');
+      soundLabel.textContent = t('soundOn');
+    } else {
+      settings.sound = 'silent';
+      soundBtn.setAttribute('aria-pressed', 'false');
+      soundLabel.textContent = t('soundOff');
+    }
+    storage.set('moodoro:settings', settings);
+    if (settings.sound !== 'silent') { ensureAudio(); playChime(); }
+  });
+  modeTabs.forEach(tab => {
+    tab.addEventListener('click', () => setMode(tab.dataset.mode));
+  });
+  window.addEventListener('keydown', (e) => {
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+    if (modal.classList.contains('open')) {
+      if (e.key === 'Escape') closeSettings();
+      return;
+    }
+    if (e.code === 'Space') { e.preventDefault(); toggle(); }
+    else if (e.key === 'n' || e.key === 'N') { e.preventDefault(); skip(); }
+    else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); reset(); }
+    else if (e.key === ',') { e.preventDefault(); openSettings(); }
+  });
+
+  setInterval(applyTheme, 60000);
+
+  // ============================================================
+  // BOOT
+  // ============================================================
+  applyTheme();
+  applyLang();
+  renderModeTabs();
+  render();
+  renderStats();
+  renderTasks();
+  renderBottles();
+  renderWeeklyBars();
+  renderActiveTaskBanner();
+  updateFavicon('idle');
+  if (settings.sound === 'silent') {
+    soundBtn.setAttribute('aria-pressed', 'false');
+    soundLabel.textContent = t('soundOff');
+  } else {
+    soundBtn.setAttribute('aria-pressed', 'true');
+    soundLabel.textContent = t('soundOn');
+  }
+})();
+</script>
+</body>
+</html>
